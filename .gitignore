@@ -1,0 +1,21 @@
+# Root .gitignore
+node_modules/
+.env
+.env.local
+dist/
+build/
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# OS specific
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Dependencies
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

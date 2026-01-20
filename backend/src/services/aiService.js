@@ -1,17 +1,45 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 
 let genAI = null;
 let model = null;
+let openai = null;
+let aiProvider = null; // 'gemini', 'openai', or null
 
-// Initialize Google Gemini AI
+// Initialize AI providers (Gemini primary, OpenAI backup)
 export function initAI() {
+    // Try Gemini first
     if (process.env.GEMINI_API_KEY) {
-        genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-        console.log('Google Gemini AI initialized (gemini-1.5-flash-latest)');
-        return true;
+        try {
+            genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+            aiProvider = 'gemini';
+            console.log('Google Gemini AI initialized (gemini-1.5-flash-latest)');
+
+            // Also initialize OpenAI as backup if available
+            if (process.env.OPENAI_API_KEY) {
+                openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+                console.log('OpenAI initialized as backup (gpt-3.5-turbo)');
+            }
+            return true;
+        } catch (error) {
+            console.error('Gemini initialization failed:', error.message);
+        }
     }
-    console.log('No Gemini API key configured, using fallback scoring');
+
+    // Fallback to OpenAI if Gemini not available
+    if (process.env.OPENAI_API_KEY) {
+        try {
+            openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+            aiProvider = 'openai';
+            console.log('OpenAI initialized as primary (gpt-3.5-turbo)');
+            return true;
+        } catch (error) {
+            console.error('OpenAI initialization failed:', error.message);
+        }
+    }
+
+    console.log('No AI providers configured, using rule-based fallback');
     return false;
 }
 
@@ -171,17 +199,38 @@ function fallbackScoring(resumeText, job) {
     };
 }
 
-// Score job match using AI
+// Score job match using AI (Gemini → OpenAI → Rule-based fallback)
 export async function scoreJobMatch(resumeText, job) {
-    // Try Gemini AI first, fallback to rule-based
-    if (model) {
+    // Try Gemini AI first
+    if (aiProvider === 'gemini' && model) {
         try {
             return await geminiScoring(resumeText, job);
         } catch (error) {
-            console.error('Gemini AI error, using fallback:', error.message || error);
+            console.error('Gemini AI error, trying OpenAI:', error.message || error);
+            // Try OpenAI as backup
+            if (openai) {
+                try {
+                    return await openaiScoring(resumeText, job);
+                } catch (openaiError) {
+                    console.error('OpenAI error, using fallback:', openaiError.message);
+                    return fallbackScoring(resumeText, job);
+                }
+            }
             return fallbackScoring(resumeText, job);
         }
     }
+
+    // Try OpenAI if it's the primary provider
+    if (aiProvider === 'openai' && openai) {
+        try {
+            return await openaiScoring(resumeText, job);
+        } catch (error) {
+            console.error('OpenAI error, using fallback:', error.message || error);
+            return fallbackScoring(resumeText, job);
+        }
+    }
+
+    // No AI providers available, use rule-based
     return fallbackScoring(resumeText, job);
 }
 
@@ -227,6 +276,53 @@ Return ONLY a JSON object with this exact format (no markdown, no code blocks):
     return fallbackScoring(resumeText, job);
 }
 
+// OpenAI-powered job scoring
+async function openaiScoring(resumeText, job) {
+    const prompt = `You are a job matching expert. Score how well this resume matches the job posting on a scale of 0-100.
+
+Resume:
+${resumeText.substring(0, 2000)}
+
+Job:
+Title: ${job.title}
+Company: ${job.company}
+Location: ${job.location}
+Description: ${job.description.substring(0, 1000)}
+Required Skills: ${job.skills.join(', ')}
+
+Return ONLY a JSON object with this exact format (no markdown, no code blocks):
+{
+  "score": <number 0-100>,
+  "explanation": "<brief 1-sentence reason>",
+  "matchedSkills": ["skill1", "skill2"]
+}`;
+
+    const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 200
+    });
+
+    const text = completion.choices[0].message.content;
+
+    // Parse JSON from response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+            score: Math.max(0, Math.min(100, parsed.score || 0)),
+            explanation: parsed.explanation || 'AI-based matching',
+            matchedSkills: parsed.matchedSkills || [],
+            resumeSkills: extractSkills(resumeText).slice(0, 10)
+        };
+    }
+
+    // Fallback if JSON parsing fails
+    console.warn('Failed to parse OpenAI response, using fallback');
+    return fallbackScoring(resumeText, job);
+}
+
 // Score multiple jobs
 export async function scoreJobsInBatch(resumeText, jobs) {
     const results = await Promise.all(
@@ -244,17 +340,38 @@ export async function scoreJobsInBatch(resumeText, jobs) {
     return results;
 }
 
-// Process chat messages
+// Process chat messages (Gemini → OpenAI → Rule-based fallback)
 export async function processChat(message, jobs, resumeText) {
-    // Try Gemini AI for intelligent responses
-    if (model) {
+    // Try Gemini AI first
+    if (aiProvider === 'gemini' && model) {
         try {
             return await geminiChat(message, jobs, resumeText);
         } catch (error) {
-            console.error('Gemini chat error, using fallback:', error.message || error);
+            console.error('Gemini chat error, trying OpenAI:', error.message || error);
+            // Try OpenAI as backup
+            if (openai) {
+                try {
+                    return await openaiChat(message, jobs, resumeText);
+                } catch (openaiError) {
+                    console.error('OpenAI chat error, using fallback:', openaiError.message);
+                    return fallbackChat(message, jobs, resumeText);
+                }
+            }
             return fallbackChat(message, jobs, resumeText);
         }
     }
+
+    // Try OpenAI if it's the primary provider
+    if (aiProvider === 'openai' && openai) {
+        try {
+            return await openaiChat(message, jobs, resumeText);
+        } catch (error) {
+            console.error('OpenAI chat error, using fallback:', error.message || error);
+            return fallbackChat(message, jobs, resumeText);
+        }
+    }
+
+    // No AI providers available, use rule-based
     return fallbackChat(message, jobs, resumeText);
 }
 
@@ -293,6 +410,41 @@ Be conversational and helpful!`;
     return {
         type: 'help',
         message: response.text(),
+        jobs: []
+    };
+}
+
+// OpenAI-powered chat
+async function openaiChat(message, jobs, resumeText) {
+    const jobsList = jobs.slice(0, 10).map(j =>
+        `- ${j.title} at ${j.company} (${j.location}${j.workMode === 'Remote' ? ', Remote' : ''})`
+    ).join('\n');
+
+    const prompt = `You are Faraz, a friendly AI job search assistant. The user said: "${message}"
+
+Available jobs:
+${jobsList}
+
+User's resume summary: ${resumeText ? resumeText.substring(0, 500) : 'Not provided'}
+
+Respond naturally and helpfully. Guidelines:
+- About your name: Introduce yourself as Faraz, a friendly AI assistant
+- Job-related questions: Recommend relevant jobs from the list
+- General questions: Answer briefly and friendly, then suggest how you can help with their job search
+- App features: Provide helpful guidance
+
+Be conversational and helpful!`;
+
+    const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        max_tokens: 300
+    });
+
+    return {
+        type: 'help',
+        message: completion.choices[0].message.content,
         jobs: []
     };
 }

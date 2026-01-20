@@ -7,8 +7,8 @@ let model = null;
 export function initAI() {
     if (process.env.GEMINI_API_KEY) {
         genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        console.log('Google Gemini AI initialized (gemini-1.5-flash)');
+        model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+        console.log('Google Gemini AI initialized (gemini-1.5-flash-latest)');
         return true;
     }
     console.log('No Gemini API key configured, using fallback scoring');

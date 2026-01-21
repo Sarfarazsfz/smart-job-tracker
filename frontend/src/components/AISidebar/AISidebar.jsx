@@ -100,15 +100,15 @@ export default function AISidebar({ onClose, onJobSelect }) {
     return (
         <div className="fixed inset-0 bg-slate-900/30 dark:bg-slate-950/50 backdrop-blur-sm z-50" onClick={onClose}>
             <div
-                className="absolute right-0 top-0 h-full w-full sm:w-[480px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700/50 shadow-2xl flex flex-col animate-slide-in-right"
+                className="absolute right-0 top-0 h-full w-full sm:w-[480px] bg-white dark:bg-[#1D1F23] border-l border-slate-200 dark:border-[rgba(255,255,255,0.06)] shadow-2xl flex flex-col animate-slide-in-right"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-slate-700/50">
+                <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-[rgba(255,255,255,0.06)]">
                     <div className="flex items-center gap-3">
                         <div className="text-3xl">🤖</div>
                         <div>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">AI Assistant</h3>
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-[#E4E6EB]">AI Assistant</h3>
                             <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-500">
                                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                                 Online
@@ -138,7 +138,7 @@ export default function AISidebar({ onClose, onJobSelect }) {
                             <div className={`flex-1 max-w-[80%] ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
                                 <div className={`p-3 rounded-2xl ${msg.role === 'user'
                                     ? 'bg-indigo-500 text-white'
-                                    : 'bg-slate-100 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100'
+                                    : 'bg-slate-100 dark:bg-[#252729] text-slate-900 dark:text-[#E4E6EB]'
                                     }`}>
                                     <p className="text-sm leading-relaxed">{msg.content}</p>
                                 </div>
@@ -147,7 +147,7 @@ export default function AISidebar({ onClose, onJobSelect }) {
                                 {msg.jobs && msg.jobs.length > 0 && (
                                     <div className="mt-3 space-y-2">
                                         {msg.jobs.map(job => (
-                                            <div key={job.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3 space-y-2">
+                                            <div key={job.id} className="bg-white dark:bg-[#252729] border border-slate-200 dark:border-[rgba(255,255,255,0.06)] rounded-xl p-3 space-y-2">
                                                 <div className="flex items-start gap-3">
                                                     <img
                                                         src={job.companyLogo}
@@ -158,8 +158,8 @@ export default function AISidebar({ onClose, onJobSelect }) {
                                                         }}
                                                     />
                                                     <div className="flex-1 min-w-0">
-                                                        <div className="font-medium text-sm text-slate-900 dark:text-slate-100">{job.title}</div>
-                                                        <div className="text-xs text-slate-600 dark:text-slate-400">{job.company}</div>
+                                                        <div className="font-medium text-sm text-slate-900 dark:text-[#E4E6EB]">{job.title}</div>
+                                                        <div className="text-xs text-slate-600 dark:text-[#8A8D91]">{job.company}</div>
                                                     </div>
                                                     {job.matchScore !== undefined && (
                                                         <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-500">
@@ -167,7 +167,7 @@ export default function AISidebar({ onClose, onJobSelect }) {
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                                                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-[#8A8D91]">
                                                     <span>{job.location}</span>
                                                     <span>•</span>
                                                     <span>{job.workMode}</span>
@@ -176,7 +176,7 @@ export default function AISidebar({ onClose, onJobSelect }) {
                                                     href={job.applyUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="block w-full text-center px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs font-medium transition-colors"
+                                                    className="block w-full text-center px-3 py-2 bg-indigo-500 hover:bg-indigo-600 dark:bg-[#4E8EDC] dark:hover:bg-[#5BA3E8] text-white dark:text-[#121212] rounded-lg text-xs font-medium transition-colors"
                                                 >
                                                     View Job
                                                 </a>
@@ -235,7 +235,7 @@ export default function AISidebar({ onClose, onJobSelect }) {
                 )}
 
                 {/* Input */}
-                <div className="p-4 md:p-6 border-t border-slate-200 dark:border-slate-700/50">
+                <div className="p-4 md:p-6 border-t border-slate-200 dark:border-[rgba(255,255,255,0.06)]">
                     <div className="flex gap-2">
                         <textarea
                             className="flex-1 px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"

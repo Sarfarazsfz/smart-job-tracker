@@ -50,13 +50,13 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
     return (
         <article
             className={`
-                bg-white dark:bg-slate-800/50
-                border border-slate-200 dark:border-slate-700/50
+                bg-white dark:bg-[#1D1F23]
+                border border-slate-200 dark:border-[rgba(255,255,255,0.06)]
                 rounded-2xl
                 ${compact ? 'p-4' : 'p-5 md:p-6'}
                 transition-all duration-300 ease-out
-                hover:border-indigo-300 dark:hover:border-indigo-600/50
-                hover:bg-slate-50 dark:hover:bg-slate-800/70
+                hover:border-indigo-300 dark:hover:border-[rgba(255,255,255,0.12)]
+                hover:bg-slate-50 dark:hover:bg-[#252729]
                 hover:shadow-lg hover:shadow-indigo-500/5
                 hover:-translate-y-1
                 flex flex-col gap-3 md:gap-4
@@ -77,10 +77,10 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
                     }}
                 />
                 <div className="flex-1 min-w-0">
-                    <h3 className={`${compact ? 'text-base' : 'text-lg'} font-semibold text-slate-900 dark:text-white leading-snug mb-1`}>
+                    <h3 className={`${compact ? 'text-base' : 'text-lg'} font-semibold text-slate-900 dark:text-[#E4E6EB] leading-snug mb-1`}>
                         {job.title}
                     </h3>
-                    <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                    <div className="text-sm text-slate-700 dark:text-[#B0B3B8] leading-relaxed font-medium">
                         {job.company}
                     </div>
                 </div>
@@ -97,23 +97,23 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
 
             {/* Meta: Location, Type, Mode, Date */}
             <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-slate-200 dark:bg-slate-700/40 text-slate-800 dark:text-slate-300 rounded-lg font-medium">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
                     {getWorkModeIcon(job.workMode)} {job.location}
                 </span>
-                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-slate-700/40 text-slate-800 dark:text-slate-300 rounded-lg font-medium">
+                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
                     {job.jobType}
                 </span>
-                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-slate-700/40 text-slate-800 dark:text-slate-300 rounded-lg font-medium">
+                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
                     {job.workMode}
                 </span>
-                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-slate-700/40 text-slate-700 dark:text-slate-400 rounded-lg font-medium">
+                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-700 dark:text-[#8A8D91] rounded-lg font-medium">
                     {formatDate(job.postedDate)}
                 </span>
             </div>
 
             {/* Description - Max 2 lines */}
             {!compact && (
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed line-clamp-2 font-normal">
+                <p className="text-sm text-slate-700 dark:text-[#B0B3B8] leading-relaxed line-clamp-2 font-normal">
                     {truncateDescription(job.description)}
                 </p>
             )}
@@ -169,7 +169,7 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
                         </span>
                     ) : (
                         <button
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm hover:shadow"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 dark:bg-[#4E8EDC] dark:hover:bg-[#5BA3E8] text-white dark:text-[#121212] rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm hover:shadow"
                             onClick={(e) => { e.stopPropagation(); onApply(job); }}
                         >
                             Apply Now

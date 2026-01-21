@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import ResumeProgressModal from './ResumeProgressModal'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
@@ -9,7 +10,38 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
     const [error, setError] = useState('')
     const [mode, setMode] = useState('upload') // 'upload' or 'paste'
     const [dragActive, setDragActive] = useState(false)
+    const [showProgress, setShowProgress] = useState(false)
+    const [progress, setProgress] = useState(0)
     const fileInputRef = useRef(null)
+    const progressIntervalRef = useRef(null)
+
+    const startProgressSimulation = () => {
+        setShowProgress(true)
+        setProgress(1)
+
+        // Simulate progress from 1% to 99%
+        let currentProgress = 1
+        progressIntervalRef.current = setInterval(() => {
+            currentProgress += Math.random() * 3 // Random increment between 0-3%
+            if (currentProgress >= 99) {
+                currentProgress = 99
+                clearInterval(progressIntervalRef.current)
+            }
+            setProgress(Math.min(Math.floor(currentProgress), 99))
+        }, 300) // Update every 300ms
+    }
+
+    const stopProgressSimulation = () => {
+        if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current)
+        }
+        setProgress(99)
+        // Close modal after a brief delay to show completion
+        setTimeout(() => {
+            setShowProgress(false)
+            setProgress(0)
+        }, 500)
+    }
 
     const handleDrag = (e) => {
         e.preventDefault()
@@ -51,6 +83,7 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
     const handleUpload = async () => {
         setError('')
         setUploading(true)
+        startProgressSimulation()
 
         try {
             if (mode === 'upload' && file) {
@@ -68,6 +101,7 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                     throw new Error(data.error || 'Upload failed')
                 }
 
+                stopProgressSimulation()
                 onUpload()
             } else if (mode === 'paste' && text.trim()) {
                 const res = await fetch(`${API_URL}/resume/text`, {
@@ -82,9 +116,15 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                     throw new Error(data.error || 'Save failed')
                 }
 
+                stopProgressSimulation()
                 onUpload()
             }
         } catch (err) {
+            if (progressIntervalRef.current) {
+                clearInterval(progressIntervalRef.current)
+            }
+            setShowProgress(false)
+            setProgress(0)
             setError(err.message)
         } finally {
             setUploading(false)
@@ -251,6 +291,9 @@ Include your skills, experience, education, and any other relevant information."
                     </button>
                 </div>
             </div>
+
+            {/* Progress Modal */}
+            <ResumeProgressModal isOpen={showProgress} progress={progress} />
         </div>
     )
 }

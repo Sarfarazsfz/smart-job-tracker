@@ -29,8 +29,12 @@ export default async function jobRoutes(fastify) {
                 location
             };
 
-            // Fetch jobs
-            let jobs = await fetchJobs(filters);
+            // CRITICAL FIX: Fetch ALL jobs once (cached), don't pass filters to API
+            // This ensures we use cached data and filter on server-side
+            let jobs = await fetchJobs({}); // Empty object = fetch all jobs, use cache
+
+            // Apply filters on the cached jobs
+            jobs = applyFilters(jobs, filters);
 
             // If user has resume, score all jobs
             const resume = await getResume(userId);

@@ -509,13 +509,26 @@ function applyFilters(jobs, filters) {
 }
 
 export async function fetchJobs(filters = {}) {
-    // Check cache first (15 minutes for Adzuna to save API calls)
-    const cacheKey = JSON.stringify(filters);
+    // Create a more structured cache key
+    // Use 'jobs:all' as base key, append filter hash only if filters are applied
+    const hasFilters = filters.query || filters.location ||
+        (filters.skills && filters.skills.length > 0) ||
+        (filters.datePosted && filters.datePosted !== 'all') ||
+        (filters.jobType && filters.jobType !== 'all') ||
+        (filters.workMode && filters.workMode !== 'all');
+
+    const cacheKey = hasFilters
+        ? `all:${JSON.stringify(filters)}`
+        : 'all';
+
+    // Check cache first (1 hour TTL to reduce API calls)
     const cached = await getCachedJobs(cacheKey);
     if (cached) {
-
+        console.log(`✅ Cache HIT for jobs:${cacheKey.substring(0, 50)}...`);
         return cached;
     }
+
+    console.log(`❌ Cache MISS for jobs:${cacheKey.substring(0, 50)}... - Fetching fresh data`);
 
     let jobs = null;
 
@@ -529,15 +542,18 @@ export async function fetchJobs(filters = {}) {
 
     // Priority 3: Fallback to mock data
     if (!jobs || jobs.length === 0) {
-
+        console.log('Using mock data as fallback');
         jobs = applyFilters(MOCK_JOBS, filters);
     }
 
-    // Cache results (15 min cache for Adzuna to respect rate limits)
-    await cacheJobs(cacheKey, jobs, 900);
+    // Cache results (1 hour = 3600 seconds)
+    // This dramatically reduces API calls and improves performance
+    await cacheJobs(cacheKey, jobs, 3600);
+    console.log(`📦 Cached ${jobs.length} jobs for 1 hour`);
 
     return jobs;
 }
+
 
 export function getMockJobs() {
     return MOCK_JOBS;

@@ -6,6 +6,7 @@ export default function Header({
     onTabChange,
     onResumeClick,
     onAIClick,
+    onFilterClick,
     hasResume,
     filters,
     onFilterChange,
@@ -18,16 +19,31 @@ export default function Header({
     };
 
     return (
-        <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700">
+        <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#1D1F23]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[rgba(255,255,255,0.06)]">
             <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-3">
                 <div className="flex items-center justify-between gap-4">
-                    {/* Logo */}
-                    <div className="flex items-center gap-3 cursor-pointer">
-                        <span className="text-2xl">💼</span>
-                        <span className="text-xl md:text-2xl font-bold tracking-tight font-[var(--font-lime)] text-slate-900 dark:text-white">
-                            JobMatch
-                            <span className="text-indigo-600 dark:text-indigo-400">AI</span>
-                        </span>
+                    {/* Logo + Mobile Filter Button */}
+                    <div className="flex items-center gap-3">
+                        {/* Mobile Filter Hamburger - Only show on Jobs tab */}
+                        {activeTab === 'jobs' && (
+                            <button
+                                onClick={onFilterClick}
+                                className="lg:hidden p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                aria-label="Open Filters"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                            </button>
+                        )}
+
+                        <div className="flex items-center gap-3 cursor-pointer">
+                            <span className="text-2xl">💼</span>
+                            <span className="text-xl md:text-2xl font-bold tracking-tight font-[var(--font-lime)] text-slate-900 dark:text-[#E4E6EB]">
+                                JobMatch
+                                <span className="text-indigo-600 dark:text-indigo-400">AI</span>
+                            </span>
+                        </div>
                     </div>
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-1 font-[var(--font-poppins)]">
@@ -52,45 +68,8 @@ export default function Header({
                             </button>
                         ))}
                     </nav>
-                    {/* Search Bar (Desktop) */}
-                    <div className="hidden md:block flex-1 max-w-md">
-                        <div className="relative">
-                            <svg
-                                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                />
-                            </svg>
-                            <input
-                                type="text"
-                                placeholder="Search jobs, skills, companies…"
-                                value={filters?.query || ""}
-                                onChange={(e) =>
-                                    onFilterChange?.({ ...filters, query: e.target.value })
-                                }
-                                className="
-                                    w-full pl-10 pr-4 py-2.5 text-sm
-                                    bg-white dark:bg-slate-800
-                                    border border-slate-300 dark:border-slate-600
-                                    rounded-xl
-                                    shadow-sm
-                                    text-slate-900 dark:text-white
-                                    placeholder-slate-400
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500
-                                    transition-all"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Right Actions */}
-                    <div className="flex items-center gap-2">
+                    {/* Right Side Actions */}
+                    <div className="flex items-center gap-2 md:gap-3">
                         <ThemeToggle />
 
                         {/* AI Assistant */}
@@ -140,9 +119,9 @@ export default function Header({
                             }
                             className="w-full px-4 py-3 rounded-xl text-sm
                 bg-white dark:bg-slate-800
-                border border-slate-300 dark:border-slate-600
+                border border-slate-300 dark:border-[rgba(255,255,255,0.08)]
                 shadow-sm
-                text-slate-900 dark:text-white"
+                text-slate-900 dark:text-[#E4E6EB]"
                         />
 
                         <button

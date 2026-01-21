@@ -29,7 +29,6 @@ export default function Header({
                             <span className="text-indigo-600 dark:text-indigo-400">AI</span>
                         </span>
                     </div>
-
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-1 font-[var(--font-poppins)]">
                         {[
@@ -40,11 +39,11 @@ export default function Header({
                                 key={tab.key}
                                 onClick={() => onTabChange(tab.key)}
                                 className={`relative px-4 py-2 text-sm font-medium rounded-lg transition-all
-                  ${activeTab === tab.key
+                                    ${activeTab === tab.key
                                         ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950"
                                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                                     }
-                `}
+                                `}
                             >
                                 {tab.label}
                                 {activeTab === tab.key && (
@@ -53,7 +52,6 @@ export default function Header({
                             </button>
                         ))}
                     </nav>
-
                     {/* Search Bar (Desktop) */}
                     <div className="hidden md:block flex-1 max-w-md">
                         <div className="relative">
@@ -70,7 +68,6 @@ export default function Header({
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                                 />
                             </svg>
-
                             <input
                                 type="text"
                                 placeholder="Search jobs, skills, companies…"
@@ -79,16 +76,15 @@ export default function Header({
                                     onFilterChange?.({ ...filters, query: e.target.value })
                                 }
                                 className="
-                  w-full pl-10 pr-4 py-2.5 text-sm
-                  bg-white dark:bg-slate-800
-                  border border-slate-300 dark:border-slate-600
-                  rounded-xl
-                  shadow-sm
-                  text-slate-900 dark:text-white
-                  placeholder-slate-400
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500
-                  transition-all
-                "
+                                    w-full pl-10 pr-4 py-2.5 text-sm
+                                    bg-white dark:bg-slate-800
+                                    border border-slate-300 dark:border-slate-600
+                                    rounded-xl
+                                    shadow-sm
+                                    text-slate-900 dark:text-white
+                                    placeholder-slate-400
+                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500
+                                    transition-all"
                             />
                         </div>
                     </div>
@@ -106,18 +102,17 @@ export default function Header({
                 hover:bg-slate-200 dark:hover:bg-slate-700
                 transition"
                         >
-                            🤖 AI Assistant
+                            <div>🤖 AI Assistant</div>
                         </button>
-
                         {/* Resume Button */}
                         <button
                             onClick={onResumeClick}
                             className={`px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-semibold transition-all
-                ${hasResume
+                                ${hasResume
                                     ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900"
                                     : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
                                 }
-              `}
+                            `}
                         >
                             <span className="hidden sm:inline">{hasResume ? "Resume ✓" : "Upload Resume"}</span>
                             <span className="sm:hidden">{hasResume ? "✓" : "Resume"}</span>

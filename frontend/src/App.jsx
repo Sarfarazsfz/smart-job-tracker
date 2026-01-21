@@ -5,6 +5,7 @@ import JobFeed from './components/JobFeed/JobFeed'
 import FilterPanel from './components/Filters/FilterPanel'
 import ApplicationTracker from './components/ApplicationTracker/ApplicationTracker'
 import AISidebar from './components/AISidebar/AISidebar'
+import StickyAssistant from './components/StickyAssistant/StickyAssistant'
 import ResumeModal from './components/ResumeUpload/ResumeModal'
 import ApplicationPopup from './components/SmartPopup/ApplicationPopup'
 import AnimatedBackground from './components/AnimatedBackground/AnimatedBackground'
@@ -443,6 +444,9 @@ function App() {
             onConfirm={handleApplicationConfirm}
           />
         )}
+
+        {/* Sticky Assistant - Desktop Only */}
+        <StickyAssistant />
       </div>
     </>
   )

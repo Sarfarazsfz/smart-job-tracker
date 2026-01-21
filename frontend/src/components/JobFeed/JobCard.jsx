@@ -1,4 +1,4 @@
-export default function JobCard({ job, compact, index, onApply, applied }) {
+export default function JobCard({ job, compact, index, onApply, applied, onJobClick }) {
     const getMatchClass = (score) => {
         if (score >= 70) return 'high'
         if (score >= 40) return 'medium'
@@ -50,9 +50,9 @@ export default function JobCard({ job, compact, index, onApply, applied }) {
     return (
         <article
             className={`
-                bg-white dark:bg-slate-800/50 
+                bg-white dark:bg-slate-800/50
                 border border-slate-200 dark:border-slate-700/50
-                rounded-2xl 
+                rounded-2xl
                 ${compact ? 'p-4' : 'p-5 md:p-6'}
                 transition-all duration-300 ease-out
                 hover:border-indigo-300 dark:hover:border-indigo-600/50
@@ -64,6 +64,7 @@ export default function JobCard({ job, compact, index, onApply, applied }) {
                 cursor-pointer
             `}
             style={index !== undefined ? { animationDelay: `${index * 30}ms` } : {}}
+            onClick={() => onJobClick?.(job)}
         >
             {/* Header: Logo, Title, Company, Match Badge */}
             <div className="flex items-start gap-4">
@@ -169,7 +170,7 @@ export default function JobCard({ job, compact, index, onApply, applied }) {
                     ) : (
                         <button
                             className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm hover:shadow"
-                            onClick={() => onApply(job)}
+                            onClick={(e) => { e.stopPropagation(); onApply(job); }}
                         >
                             Apply Now
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

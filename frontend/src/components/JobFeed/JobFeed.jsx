@@ -15,12 +15,34 @@ export default function JobFeed({
     applications,
     currentPage,
     totalPages,
-    onPageChange
+    onPageChange,
+    lastUpdated, // New: timestamp of last job fetch
+    onRefresh    // New: function to manually refresh jobs
 }) {
     const [bestMatches, setBestMatches] = useState([])
     const [loadingBest, setLoadingBest] = useState(false)
     const [selectedJob, setSelectedJob] = useState(null)
+    const [refreshing, setRefreshing] = useState(false) // Track manual refresh state
     const jobFeedRef = useRef(null)
+
+    // Format last updated time
+    const getTimeAgo = (date) => {
+        if (!date) return 'Just now'
+        const seconds = Math.floor((new Date() - date) / 1000)
+        if (seconds < 60) return 'Just now'
+        const minutes = Math.floor(seconds / 60)
+        if (minutes < 60) return `${minutes}m ago`
+        const hours = Math.floor(minutes / 60)
+        return `${hours}h ago`
+    }
+
+    const handleRefresh = async () => {
+        setRefreshing(true)
+        if (onRefresh) {
+            await onRefresh()
+        }
+        setTimeout(() => setRefreshing(false), 500) // Small delay for UX
+    }
 
     useEffect(() => {
         if (hasResume) {
@@ -107,20 +129,75 @@ export default function JobFeed({
                                         onApply={onApply}
                                         applied={isApplied(job.id)}
                                         onJobClick={handleJobClick}
+                                        hasResume={hasResume}
                                     />
                                 ))}
                             </div>
                         </section>
                     )}
 
+                {/* Helper message when no resume uploaded */}
+                {!hasResume && (
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-500/10 dark:to-purple-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-2xl p-6 mb-8">
+                        <div className="flex items-start gap-4">
+                            <div className="flex-shrink-0 text-3xl">💡</div>
+                            <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-[#E4E6EB] mb-2">
+                                    Upload your resume to see AI-powered job matches
+                                </h3>
+                                <p className="text-sm text-slate-600 dark:text-[#B0B3B8] mb-3">
+                                    Get personalized match scores, highlighted skills, and tailored recommendations based on your experience.
+                                </p>
+                                <button
+                                    onClick={() => document.querySelector('[data-resume-button]')?.click()}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="17,8 12,3 7,8" />
+                                        <line x1="12" y1="3" x2="12" y2="15" />
+                                    </svg>
+                                    Upload Resume Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* All Jobs */}
                 <section className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-[#E4E6EB]">
-                            All Jobs
-                        </h2>
-                        <div className="px-4 py-1.5 bg-slate-100 dark:bg-[#252729] border border-slate-200 dark:border-[rgba(255,255,255,0.06)] rounded-xl text-xs font-semibold text-slate-600 dark:text-[#8A8D91]">
-                            {totalJobs} {totalJobs === 1 ? 'job' : 'jobs'} found
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-xl font-semibold text-slate-900 dark:text-[#E4E6EB]">
+                                All Jobs
+                            </h2>
+                            <div className="px-4 py-1.5 bg-slate-100 dark:bg-[#252729] border border-slate-200 dark:border-[rgba(255,255,255,0.06)] rounded-xl text-xs font-semibold text-slate-600 dark:text-[#8A8D91]">
+                                {totalJobs} {totalJobs === 1 ? 'job' : 'jobs'} found
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {/* Last Updated */}
+                            {lastUpdated && (
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-[#252729] rounded-lg text-xs text-slate-600 dark:text-[#8A8D91]">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {getTimeAgo(lastUpdated)}
+                                </div>
+                            )}
+                            {/* Manual Refresh Button */}
+                            {onRefresh && (
+                                <button
+                                    onClick={handleRefresh}
+                                    disabled={refreshing}
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-xs font-medium transition-all shadow-sm"
+                                >
+                                    <svg className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    {refreshing ? 'Refreshing...' : 'Refresh Jobs'}
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -143,6 +220,7 @@ export default function JobFeed({
                                         onApply={onApply}
                                         applied={isApplied(job.id)}
                                         onJobClick={handleJobClick}
+                                        hasResume={hasResume}
                                     />
                                 ))}
                             </div>

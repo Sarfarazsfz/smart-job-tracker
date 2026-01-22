@@ -1,4 +1,4 @@
-export default function JobCard({ job, compact, index, onApply, applied, onJobClick }) {
+export default function JobCard({ job, compact, index, onApply, applied, onJobClick, hasResume }) {
     const getMatchClass = (score) => {
         if (score >= 70) return 'high'
         if (score >= 40) return 'medium'
@@ -43,9 +43,25 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
         }
     }
 
+    // Check if job is new (within 24h or 3 days)
+    const getJobFreshnessInfo = (dateStr) => {
+        const date = new Date(dateStr)
+        const now = new Date()
+        const hoursDiff = (now - date) / (1000 * 60 * 60)
+
+        if (hoursDiff < 24) {
+            return { badge: 'NEW', color: 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' }
+        }
+        if (hoursDiff < 72) { // 3 days
+            return { badge: 'RECENT', color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white' }
+        }
+        return null
+    }
+
     const maxSkills = compact ? 3 : 4
     const visibleSkills = job.skills?.slice(0, maxSkills) || []
     const remainingSkillsCount = (job.skills?.length || 0) - maxSkills
+    const freshnessInfo = getJobFreshnessInfo(job.postedDate)
 
     return (
         <article
@@ -84,7 +100,7 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
                         {job.company}
                     </div>
                 </div>
-                {job.matchScore !== undefined && (
+                {hasResume && job.matchScore !== undefined && (
                     <div
                         className={`flex flex-col items-center px-3 py-2 rounded-xl border ${getMatchColors(getMatchClass(job.matchScore))} flex-shrink-0`}
                         title={job.matchExplanation}
@@ -97,6 +113,12 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
 
             {/* Meta: Location, Type, Mode, Date */}
             <div className="flex flex-wrap gap-2">
+                {/* New/Recent Badge */}
+                {freshnessInfo && (
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs ${freshnessInfo.color} rounded-lg font-bold shadow-sm`}>
+                        ✨ {freshnessInfo.badge}
+                    </span>
+                )}
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
                     {getWorkModeIcon(job.workMode)} {job.location}
                 </span>
@@ -145,7 +167,7 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
             )}
 
             {/* Match explanation - compact view */}
-            {!compact && job.matchExplanation && (
+            {!compact && hasResume && job.matchExplanation && (
                 <div className="px-3 py-2 bg-slate-100 dark:bg-slate-700/30 rounded-lg text-xs">
                     <span className="text-slate-600 dark:text-slate-400 mr-1.5 font-medium">Why we matched:</span>
                     <span className="text-slate-700 dark:text-slate-300">{job.matchExplanation}</span>

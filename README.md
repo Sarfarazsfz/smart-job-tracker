@@ -710,7 +710,7 @@ sequenceDiagram
 
 ## 📚 Documentation
 
-Comprehensive documentation is available in the `/docs` folder:
+This README provides a comprehensive overview of the project, covering all requirements for evaluation. For detailed technical references, see the optional documentation in the `/docs` folder:
 
 ### 📖 [API Documentation](docs/API.md)
 Complete API reference with all endpoints, request/response examples, and usage patterns:
@@ -733,16 +733,9 @@ Step-by-step deployment instructions for production:
 - Monitoring and troubleshooting
 - Cost estimation and optimization
 
-### 🎨 Component Documentation
-Detailed component API and usage examples (coming soon):
-- Component props and types
-- State management patterns
-- Styling conventions
-- Testing guidelines
-- Reusability best practices
-
-### 📊 Additional Resources
-- **Architecture Diagrams**: See [Architecture](#architecture) section below
+### 📊 Additional Resources in This README
+All evaluation requirements are covered in the sections above:
+- **Architecture Diagrams**: See [Architecture](#architecture) section
 - **AI Algorithm**: See [AI Matching Logic](#ai-matching-logic) section
 - **Smart Popup Design**: See [Smart Popup Flow](#smart-popup-flow) section
 - **Scalability Strategy**: See [Scalability](#scalability) section

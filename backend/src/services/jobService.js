@@ -235,29 +235,39 @@ async function fetchFromAdzuna(filters) {
         const params = new URLSearchParams({
             app_id: ADZUNA_APP_ID,
             app_key: ADZUNA_APP_KEY,
-            results_per_page: '50',
-            sort_by: 'date'
+            results_per_page: '50', // Exactly 50 jobs
+            sort_by: 'date' // Newest first
         });
 
-        if (filters.query) {
-            params.append('what', filters.query);
+        // Default tech-focused search query for Bangalore
+        let searchQuery = filters.query || 'software engineer developer';
+
+        // Add tech keywords if no specific query
+        if (!filters.query) {
+            searchQuery = 'software engineer developer full stack frontend backend react python java';
         }
+
+        params.append('what', searchQuery);
+
+        // Default to Bangalore for tech jobs, allow override
+        const location = filters.location || 'Bangalore';
+        params.append('where', location);
 
         if (filters.skills && filters.skills.length > 0) {
             const skillsQuery = filters.skills.join(' ');
             const currentWhat = params.get('what') || '';
-            params.set('what', currentWhat ? `${currentWhat} ${skillsQuery}` : skillsQuery);
+            params.set('what', `${currentWhat} ${skillsQuery}`);
         }
 
-        if (filters.location) {
-            params.append('where', filters.location);
-        }
-
+        // Prioritize recent jobs (last 7 days by default for freshness)
         if (filters.datePosted && filters.datePosted !== 'all') {
             const daysMap = { 'day': '1', 'week': '7', 'month': '30' };
             if (daysMap[filters.datePosted]) {
                 params.append('max_days_old', daysMap[filters.datePosted]);
             }
+        } else {
+            // Default: show jobs from last 30 days to keep feed fresh
+            params.append('max_days_old', '30');
         }
 
         if (filters.jobType && filters.jobType !== 'all') {
@@ -275,11 +285,12 @@ async function fetchFromAdzuna(filters) {
 
         if (filters.workMode === 'Remote') {
             const currentWhat = params.get('what') || '';
-            params.set('what', currentWhat ? `${currentWhat} remote` : 'remote');
+            params.set('what', `${currentWhat} remote`);
         }
 
         const url = `${ADZUNA_API_BASE}/${page}?${params}`;
 
+        console.log(`🔍 Fetching from Adzuna: ${location} tech jobs (max 50)`);
 
         const response = await fetch(url);
         if (!response.ok) {
@@ -288,8 +299,13 @@ async function fetchFromAdzuna(filters) {
 
         const data = await response.json();
 
+        const jobs = data.results?.map(transformAdzunaJob) || [];
+        console.log(`✅ Fetched ${jobs.length} jobs from Adzuna`);
 
-        return data.results?.map(transformAdzunaJob) || [];
+        // Sort by date to ensure newest first
+        jobs.sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate));
+
+        return jobs;
     } catch (error) {
         console.error('Adzuna API error:', error);
         return null;

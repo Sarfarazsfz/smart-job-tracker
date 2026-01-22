@@ -83,12 +83,17 @@ export default async function resumeRoutes(fastify) {
     fastify.get('/', async (request, reply) => {
         try {
             const userId = request.query.userId || 'default';
+            fastify.log.info(`Checking resume for user: ${userId}`);
+
             const resume = await getResume(userId);
 
-            if (!resume) {
+            // Strict validation: resume must exist AND have text content
+            if (!resume || !resume.text) {
+                fastify.log.info(`No resume found for user: ${userId}`);
                 return { hasResume: false };
             }
 
+            fastify.log.info(`Resume exists for user: ${userId}, uploaded: ${resume.uploadedAt}`);
             return {
                 hasResume: true,
                 filename: resume.filename,
@@ -96,8 +101,9 @@ export default async function resumeRoutes(fastify) {
                 textPreview: resume.text.substring(0, 200) + '...'
             };
         } catch (error) {
-            fastify.log.error(error);
-            reply.status(500).send({ error: 'Failed to get resume' });
+            fastify.log.error('Error checking resume:', error);
+            // On error, default to safe state (no resume) instead of 500 error
+            return { hasResume: false };
         }
     });
 

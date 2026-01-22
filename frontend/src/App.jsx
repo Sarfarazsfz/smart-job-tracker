@@ -8,7 +8,6 @@ import AISidebar from './components/AISidebar/AISidebar'
 import StickyAssistant from './components/StickyAssistant/StickyAssistant'
 import ResumeModal from './components/ResumeUpload/ResumeModal'
 import ApplicationPopup from './components/SmartPopup/ApplicationPopup'
-import AnimatedBackground from './components/AnimatedBackground/AnimatedBackground'
 import Footer from './components/Footer/Footer'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
@@ -36,6 +35,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [applications, setApplications] = useState([])
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState(null) // Track last fetch time
 
   // Pagination state (moved to App so filtering+sorting happen first)
   const [currentPage, setCurrentPage] = useState(1)
@@ -136,35 +136,108 @@ function App() {
       return true
     })
 
-    // 2. Calculate relevance score for sorting
+    // 2. STRICT RANKING: Group jobs by match type, then sort within groups
     result = result.map(job => {
-      let relevanceScore = 0
-
       const jobTitle = (job.title || '').toLowerCase()
-      const jobCompany = (job.company || '').toLowerCase()
-      const jobDescription = (job.description || '').toLowerCase()
       const jobLocation = (job.location || '').toLowerCase()
+
+      const query = (filters.query || '').toLowerCase().trim()
+      const filterLocation = (filters.location || '').toLowerCase().trim()
+
+      // Normalize city names for better matching
+      const normalizeCity = (city) => {
+        const cityMap = {
+          'bangalore': 'bengaluru',
+          'bengaluru': 'bengaluru',
+          'delhi': 'delhi',
+          'new delhi': 'delhi',
+          'mumbai': 'mumbai',
+          'bombay': 'mumbai',
+          'hyderabad': 'hyderabad'
+        }
+        const normalized = cityMap[city.toLowerCase()]
+        return normalized || city.toLowerCase()
+      }
+
+      // Check location match (case-insensitive, normalized)
+      let locationMatch = false
+      if (filterLocation) {
+        const normalizedFilter = normalizeCity(filterLocation)
+        const normalizedJobLocation = normalizeCity(jobLocation)
+
+        // Exact city match or contains as word boundary
+        const cityPattern = new RegExp(`\\b${normalizedFilter}\\b`, 'i')
+        locationMatch = cityPattern.test(normalizedJobLocation) ||
+          normalizedJobLocation.includes(normalizedFilter)
+      }
+
+      // Check title match with multiple levels
+      let titleMatchLevel = 0 // 0 = no match, 1 = partial, 2 = strong, 3 = exact
+      if (query) {
+        if (jobTitle === query) {
+          titleMatchLevel = 3 // Exact match
+        } else if (jobTitle.startsWith(query)) {
+          titleMatchLevel = 2 // Starts with
+        } else if (new RegExp(`\\b${query}\\b`, 'i').test(jobTitle)) {
+          titleMatchLevel = 2 // Whole word match
+        } else if (jobTitle.includes(query)) {
+          titleMatchLevel = 1 // Partial match
+        }
+      }
+
+      // Assign ranking group (lower number = higher priority)
+      let rankGroup = 4 // Default: no match
+
+      if (filterLocation && query) {
+        // Both location and title search active
+        if (locationMatch && titleMatchLevel > 0) {
+          rankGroup = 1 // HIGHEST: Both match
+        } else if (locationMatch) {
+          rankGroup = 2 // Location match only
+        } else if (titleMatchLevel > 0) {
+          rankGroup = 3 // Title match only
+        }
+      } else if (filterLocation) {
+        // Only location search
+        if (locationMatch) {
+          rankGroup = 1 // Location matches
+        }
+      } else if (query) {
+        // Only title search
+        if (titleMatchLevel > 0) {
+          rankGroup = 1 // Title matches
+        }
+      }
+
+      // Tie-breaker scores within the same rank group
+      let tieBreaker = 0
+
+      // 1. Recency (0-1000 points)
+      if (job.postedDate) {
+        const posted = new Date(job.postedDate)
+        const now = new Date()
+        const hoursDiff = (now - posted) / (1000 * 60 * 60)
+
+        // More recent = higher score
+        if (hoursDiff < 24) tieBreaker += 1000
+        else if (hoursDiff < 72) tieBreaker += 800
+        else if (hoursDiff < 168) tieBreaker += 600 // 1 week
+        else if (hoursDiff < 720) tieBreaker += 400 // 1 month
+        else tieBreaker += 200
+      }
+
+      // 2. Title match quality (0-300 points)
+      tieBreaker += titleMatchLevel * 100
+
+      // 3. Match score from resume (0-100 points)
+      if (hasResume && job.matchScore) {
+        tieBreaker += job.matchScore
+      }
+
+      // 4. Skill match (0-50 points)
+      const selectedSkills = (filters.skills || []).map(s => s.toLowerCase())
       const jobSkills = (job.skills || []).map(s => s.toLowerCase())
 
-      const query = (filters.query || '').toLowerCase()
-      const filterLocation = (filters.location || '').toLowerCase()
-      const selectedSkills = (filters.skills || []).map(s => s.toLowerCase())
-
-      // Exact title match (highest priority) - 100 points
-      if (query && jobTitle.includes(query)) {
-        relevanceScore += 100
-      } else if (query && jobCompany.includes(query)) {
-        relevanceScore += 80
-      } else if (query && jobDescription.includes(query)) {
-        relevanceScore += 40
-      }
-
-      // Location match - 80 points
-      if (filterLocation && jobLocation.includes(filterLocation)) {
-        relevanceScore += 80
-      }
-
-      // Skill match - up to 60 points
       if (selectedSkills.length > 0) {
         const matchedSkills = jobSkills.filter(jobSkill =>
           selectedSkills.some(filterSkill =>
@@ -172,30 +245,28 @@ function App() {
           )
         )
         const skillMatchRatio = matchedSkills.length / selectedSkills.length
-        relevanceScore += Math.floor(skillMatchRatio * 60)
+        tieBreaker += Math.floor(skillMatchRatio * 50)
       }
 
-      // Match score (if resume exists) - up to 50 points
-      if (hasResume && job.matchScore) {
-        relevanceScore += Math.floor((job.matchScore / 100) * 50)
+      return {
+        ...job,
+        rankGroup,           // Primary sort key
+        titleMatchLevel,     // For debugging
+        locationMatch,       // For debugging
+        tieBreaker          // Secondary sort key
       }
-
-      // Recency bonus - up to 30 points
-      if (job.postedDate) {
-        const posted = new Date(job.postedDate)
-        const now = new Date()
-        const daysDiff = Math.floor((now - posted) / (1000 * 60 * 60 * 24))
-
-        if (daysDiff <= 1) relevanceScore += 30
-        else if (daysDiff <= 7) relevanceScore += 20
-        else if (daysDiff <= 30) relevanceScore += 10
-      }
-
-      return { ...job, relevanceScore }
     })
 
-    // 3. Sort by relevance score (descending)
-    result.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+    // 3. STRICT SORT: First by rank group, then by tie-breaker
+    result.sort((a, b) => {
+      // Primary: Rank group (ascending - lower is better)
+      if (a.rankGroup !== b.rankGroup) {
+        return a.rankGroup - b.rankGroup
+      }
+
+      // Secondary: Tie-breaker (descending - higher is better)
+      return b.tieBreaker - a.tieBreaker
+    })
 
     return result
   }, [allJobs, filters, hasResume])
@@ -235,25 +306,76 @@ function App() {
 
   const checkResume = async () => {
     try {
+      console.log('[Resume Check] Fetching resume status from backend...')
       const res = await fetch(`${API_URL}/resume`)
-      const data = await res.json()
-      setHasResume(data.hasResume)
 
-      if (!data.hasResume) {
+      if (!res.ok) {
+        console.error('[Resume Check] Backend returned error:', res.status)
+        setHasResume(false) // Explicitly set to false on error
         setTimeout(() => setShowResumeModal(true), 1000)
+        return
+      }
+
+      const data = await res.json()
+      console.log('[Resume Check] Backend response:', data)
+
+      // Strict boolean check to ensure we only set true when explicitly true
+      const resumeExists = data.hasResume === true
+      setHasResume(resumeExists)
+
+      if (!resumeExists) {
+        console.log('[Resume Check] No resume found, showing upload modal')
+        setTimeout(() => setShowResumeModal(true), 1000)
+      } else {
+        console.log('[Resume Check] Resume already uploaded')
       }
     } catch (error) {
-      console.error('Error checking resume:', error)
+      console.error('[Resume Check] Error checking resume:', error)
+      setHasResume(false) // Explicitly set to false on error
+      setTimeout(() => setShowResumeModal(true), 1000)
     }
   }
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (forceRefresh = false) => {
     setLoading(true)
     try {
-      // Fetch ALL jobs once - NO filters passed to API
+      // Check localStorage cache first (1 hour TTL)
+      const CACHE_KEY = 'job_tracker_jobs'
+      const CACHE_TIMESTAMP_KEY = 'job_tracker_timestamp'
+      const CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
+
+      if (!forceRefresh) {
+        const cachedJobs = localStorage.getItem(CACHE_KEY)
+        const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY)
+
+        if (cachedJobs && cachedTimestamp) {
+          const age = Date.now() - parseInt(cachedTimestamp)
+          if (age < CACHE_DURATION) {
+            console.log('✅ Using cached jobs from localStorage')
+            setAllJobs(JSON.parse(cachedJobs))
+            setLastUpdated(new Date(parseInt(cachedTimestamp)))
+            setLoading(false)
+            return
+          }
+        }
+      }
+
+      // Fetch from API if cache miss or force refresh
+      console.log('🔄 Fetching fresh jobs from API')
       const res = await fetch(`${API_URL}/jobs`)
       const data = await res.json()
-      setAllJobs(data.jobs || []) // Store in allJobs, never overwrite
+      const jobs = data.jobs || []
+
+      // Update state
+      setAllJobs(jobs)
+
+      // Cache in localStorage
+      const timestamp = Date.now()
+      localStorage.setItem(CACHE_KEY, JSON.stringify(jobs))
+      localStorage.setItem(CACHE_TIMESTAMP_KEY, timestamp.toString())
+      setLastUpdated(new Date(timestamp))
+
+      console.log(`📦 Cached ${jobs.length} jobs in localStorage`)
     } catch (error) {
       console.error('Error fetching jobs:', error)
     } finally {
@@ -324,9 +446,6 @@ function App() {
 
   return (
     <>
-      {/* Animated Background - only in dark mode */}
-      <AnimatedBackground enabled={isDarkMode} />
-
       <div className="min-h-screen flex flex-col text-slate-900 dark:text-slate-100 transition-colors duration-300 bg-[#F3F2EF] dark:bg-[#121212]">
         <Header
           activeTab={activeTab}
@@ -359,6 +478,8 @@ function App() {
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={setCurrentPage}
+                  lastUpdated={lastUpdated}
+                  onRefresh={() => fetchJobs(true)}
                 />
               </div>
 
@@ -408,6 +529,8 @@ function App() {
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={setCurrentPage}
+                  lastUpdated={lastUpdated}
+                  onRefresh={() => fetchJobs(true)}
                 />
               </div>
             </>

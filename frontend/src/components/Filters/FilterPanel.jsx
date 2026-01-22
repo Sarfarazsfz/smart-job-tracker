@@ -199,29 +199,50 @@ export default function FilterPanel({ filters, onFilterChange, hasResume }) {
 
             {/* Match Score */}
             {hasResume && (
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                            Match Score
+                <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-slate-900 dark:text-white">
+                        Match Score
+                    </label>
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <input
+                                type="radio"
+                                name="matchScore"
+                                value="0"
+                                checked={filters.minScore === 0}
+                                onChange={() => onFilterChange({ ...filters, minScore: 0 })}
+                                className="w-4 h-4 text-indigo-500 border-slate-300 dark:border-slate-500 focus:ring-indigo-500/50"
+                            />
+                            <span className="text-sm text-slate-800 dark:text-slate-200 font-medium group-hover:text-slate-900 dark:group-hover:text-white">
+                                All
+                            </span>
                         </label>
-                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {filters.minScore > 0 ? `>${filters.minScore}%` : 'All'}
-                        </span>
-                    </div>
-                    <input
-                        type="range"
-                        className="w-full h-2 bg-slate-300 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                        min="0"
-                        max="100"
-                        step="10"
-                        value={filters.minScore}
-                        onChange={(e) => onFilterChange({ ...filters, minScore: parseInt(e.target.value) })}
-                    />
-                    <div className="flex justify-between text-xs font-medium">
-                        <span className="text-slate-700 dark:text-slate-300">All</span>
-                        <span className="text-slate-700 dark:text-slate-300">Low</span>
-                        <span className="text-amber-600 dark:text-amber-400">Med</span>
-                        <span className="text-emerald-600 dark:text-emerald-400">High</span>
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <input
+                                type="radio"
+                                name="matchScore"
+                                value="40"
+                                checked={filters.minScore === 40}
+                                onChange={() => onFilterChange({ ...filters, minScore: 40 })}
+                                className="w-4 h-4 text-indigo-500 border-slate-300 dark:border-slate-500 focus:ring-indigo-500/50"
+                            />
+                            <span className="text-sm text-slate-800 dark:text-slate-200 font-medium group-hover:text-slate-900 dark:group-hover:text-white">
+                                Medium & High (≥40%)
+                            </span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <input
+                                type="radio"
+                                name="matchScore"
+                                value="70"
+                                checked={filters.minScore === 70}
+                                onChange={() => onFilterChange({ ...filters, minScore: 70 })}
+                                className="w-4 h-4 text-indigo-500 border-slate-300 dark:border-slate-500 focus:ring-indigo-500/50"
+                            />
+                            <span className="text-sm text-slate-800 dark:text-slate-200 font-medium group-hover:text-slate-900 dark:group-hover:text-white">
+                                High (≥70%)
+                            </span>
+                        </label>
                     </div>
                 </div>
             )}

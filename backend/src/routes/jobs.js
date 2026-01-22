@@ -107,9 +107,21 @@ export default async function jobRoutes(fastify) {
             let jobs = await fetchJobs({});  // Get all jobs from Adzuna
             jobs = await scoreJobsInBatch(resume.text, jobs);
 
-            // Get top matches
+            // CRITICAL: Filter to only HIGH matches (>70%)
+            jobs = jobs.filter(job => (job.matchScore || 0) > 70);
+
+            // Sort by match score (descending), then by recency
             const bestMatches = jobs
-                .sort((a, b) => b.matchScore - a.matchScore)
+                .sort((a, b) => {
+                    // Primary: Match score (descending - higher is better)
+                    if (b.matchScore !== a.matchScore) {
+                        return b.matchScore - a.matchScore;
+                    }
+                    // Secondary: Recency (newer jobs first)
+                    const dateA = new Date(a.postedDate);
+                    const dateB = new Date(b.postedDate);
+                    return dateB - dateA;
+                })
                 .slice(0, parseInt(limit));
 
             return {

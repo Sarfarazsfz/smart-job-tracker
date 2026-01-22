@@ -136,34 +136,6 @@ export default function JobFeed({
                         </section>
                     )}
 
-                {/* Helper message when no resume uploaded */}
-                {!hasResume && (
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-500/10 dark:to-purple-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-2xl p-6 mb-8">
-                        <div className="flex items-start gap-4">
-                            <div className="flex-shrink-0 text-3xl">💡</div>
-                            <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-[#E4E6EB] mb-2">
-                                    Upload your resume to see AI-powered job matches
-                                </h3>
-                                <p className="text-sm text-slate-600 dark:text-[#B0B3B8] mb-3">
-                                    Get personalized match scores, highlighted skills, and tailored recommendations based on your experience.
-                                </p>
-                                <button
-                                    onClick={() => document.querySelector('[data-resume-button]')?.click()}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                        <polyline points="17,8 12,3 7,8" />
-                                        <line x1="12" y1="3" x2="12" y2="15" />
-                                    </svg>
-                                    Upload Resume Now
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
                 {/* All Jobs */}
                 <section className="space-y-6">
                     <div className="flex items-center justify-between flex-wrap gap-3">

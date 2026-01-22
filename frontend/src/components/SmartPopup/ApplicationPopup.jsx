@@ -12,7 +12,7 @@ export default function ApplicationPopup({ job, onConfirm }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-            <div className="bg-white dark:bg-[#1D1F23] border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-scale-in">
+            <div className="bg-white dark:bg-[#121212] border border-gray-200 dark:border-[rgba(255,255,255,0.06)] rounded-2xl md:rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-scale-in">
                 {/* Header */}
                 <div className="text-center mb-5 md:mb-6">
                     <div className="w-14 h-14 md:w-16 md:h-16 bg-blue-500/10 dark:bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -26,7 +26,7 @@ export default function ApplicationPopup({ job, onConfirm }) {
                 </div>
 
                 {/* Job Summary */}
-                <div className="bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-600 rounded-xl md:rounded-2xl p-4 md:p-5 mb-6 flex items-center gap-4">
+                <div className="bg-gray-50 dark:bg-[#1D1F23] border border-gray-200 dark:border-[rgba(255,255,255,0.06)] rounded-xl md:rounded-2xl p-4 md:p-5 mb-6 flex items-center gap-4">
                     <img
                         src={job.companyLogo}
                         alt={job.company}
@@ -63,7 +63,7 @@ export default function ApplicationPopup({ job, onConfirm }) {
                         className={`w-full px-4 md:px-5 py-3 md:py-3.5 rounded-xl font-medium text-sm md:text-base transition-all duration-200 flex items-center justify-center gap-2.5
                             ${choice === 'browsing'
                                 ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 scale-[0.98]'
-                                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 active:scale-[0.98]'
+                                : 'bg-white dark:bg-[#252729] text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2D2F33] border-2 border-gray-300 dark:border-[rgba(255,255,255,0.06)] hover:border-gray-400 dark:hover:border-[rgba(255,255,255,0.12)] active:scale-[0.98]'
                             }`}
                         onClick={() => handleChoice(false, 'browsing')}
                     >
@@ -79,7 +79,7 @@ export default function ApplicationPopup({ job, onConfirm }) {
                         className={`w-full px-4 md:px-5 py-3 md:py-3.5 rounded-xl font-medium text-sm md:text-base transition-all duration-200 flex items-center justify-center gap-2.5
                             ${choice === 'earlier'
                                 ? 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 scale-[0.98]'
-                                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 active:scale-[0.98]'
+                                : 'bg-white dark:bg-[#252729] text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2D2F33] border-2 border-gray-300 dark:border-[rgba(255,255,255,0.06)] hover:border-gray-400 dark:hover:border-[rgba(255,255,255,0.12)] active:scale-[0.98]'
                             }`}
                         onClick={() => handleChoice(true, 'earlier')}
                     >

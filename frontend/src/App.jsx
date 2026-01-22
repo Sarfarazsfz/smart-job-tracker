@@ -425,10 +425,16 @@ function App() {
     setPendingApplication(null)
   }
 
-  const handleResumeUpload = () => {
+  const handleResumeUpload = async () => {
     setHasResume(true)
     setShowResumeModal(false)
-    fetchJobs() // Refetch only when resume is uploaded to update match scores
+
+    // Clear localStorage cache to force fresh fetch with match scores
+    localStorage.removeItem('job_tracker_jobs')
+    localStorage.removeItem('job_tracker_timestamp')
+
+    // Refetch jobs with match scores
+    await fetchJobs(true)
   }
 
   const updateApplicationStatus = async (appId, newStatus) => {

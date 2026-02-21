@@ -1,90 +1,98 @@
-# JobMatch AI – AI-Powered Job Tracker with Smart Matching
+# JobMatch AI
 
-This project was built as part of an internship assignment and demonstrates end-to-end full-stack development, clean UI/UX design, and practical AI integration.
+<div align="center">
 
-This project focuses on solving the real-world problem of managing job applications efficiently while improving decision-making using AI-powered match scoring.
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-18-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![Fastify](https://img.shields.io/badge/Fastify-4-000000?style=flat-square&logo=fastify)
+![Gemini](https://img.shields.io/badge/Google%20Gemini-AI-4285F4?style=flat-square&logo=google&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D?style=flat-square&logo=redis&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
----
+**Upload your resume. See how well you match. Apply smarter.**
 
-## 🔗 Live Demo
+[Live Demo](https://smart-job-tracker-ochre.vercel.app) • [Backend API](https://smart-job-tracker-backend-r5wd.onrender.com) • [GitHub](https://github.com/Sarfarazsfz/smart-job-tracker)
 
-- **Frontend**: https://smart-job-tracker-ochre.vercel.app
-- **Backend API**: https://smart-job-tracker-backend-r5wd.onrender.com
-- **GitHub Repository**: https://github.com/Sarfarazsfz/smart-job-tracker
-
-Demo Note: Upload your resume to activate AI-powered job matching and view personalized match scores.
-
----
-
-## 🛠️ Tech Stack
-
-Frontend:
-- React
-- Vite
-- JavaScript
-- CSS
-
-Backend:
-- Node.js
-- Fastify
-
-AI Integration:
-- Google Gemini API
-
-Cache:
-- Upstash Redis
-
-External APIs:
-- Adzuna Job API
-
-Deployment:
-- Vercel (Frontend)
-- Render (Backend)
-
-## ✨ Key Features
-
-### Core Functionality
-- Job feed powered by an external job API (India-focused listings)
-- Resume upload (PDF/TXT) with automatic text extraction
-- AI-based job–resume matching with percentage scores
-- **Best Matches for You** section highlighting top matches
-- Smart application tracking with confirmation popup
-- Conversational AI assistant for job discovery and guidance
-- Fully responsive UI (mobile, tablet, desktop)
-
-### Filters (Assignment Requirement)
-- **Role / Job Title** search
-- **Skills** (multi-select: React, Node.js, Python, etc.)
-- **Date Posted** (Last 24 hours, Last week, Last month, Any time)
-- **Job Type** (Full-time, Part-time, Contract, Internship)
-- **Work Mode** (Remote, Hybrid, On-site)
-- **Location** (City / Region)
-- **Match Score** (High >70%, Medium 40–70%, All)
+</div>
 
 ---
 
-## 🏗️ Project Architecture
+## What is this?
 
-The application follows a clean three-tier architecture:
+JobMatch AI started from a frustration — job hunting involves endless scrolling through listings that don't fit, wasting hours applying to roles where you're not a strong candidate.
 
-### 1. Presentation Layer (Frontend)
-- React + Vite
-- Client-side filtering and ranking for instant UX
-- State managed with React hooks
-- Dark-mode focused, professional UI
+This app connects your resume to real job listings and uses Google Gemini to score how well you match each role. Instead of guessing, you get a clear percentage and can focus your energy on applications that actually make sense.
 
-### 2. Application Layer (Backend)
-- Node.js + Fastify
-- REST APIs
-- Job fetching, resume processing, AI orchestration
-- Cache-first design for performance
+Built during an internship assignment, but designed to solve a real problem.
 
-### 3. Data & External Services
-- Adzuna API for job listings
-- Google Gemini for AI matching (with fallback logic)
-- Upstash Redis (or in-memory fallback) for caching
+> **Demo tip:** The AI matching only activates after you upload a resume. Try it — the difference in the feed is immediately noticeable.
 
-### Architecture Diagram
+---
+
+## Screenshots
+
+### 🖥️ Job Feed with AI Match Scores
+<!-- Add your screenshot here -->
+![Job Feed](screenshots/job-feed.png)
+
+### 📄 Resume Upload & Best Matches
+<!-- Add your screenshot here -->
+![Resume Upload](screenshots/resume-upload.png)
+
+### 🤖 AI Assistant Chat
+<!-- Add your screenshot here -->
+![AI Chat](screenshots/ai-chat.png)
+
+### 📋 Application Tracker
+<!-- Add your screenshot here -->
+![Application Tracker](screenshots/tracker.png)
+
+> To add screenshots: create a `/screenshots` folder in the repo, add your images, and the paths above will work automatically.
+
+---
+
+## Features
+
+**The core loop is simple:** browse jobs → upload resume → see your match scores → apply to the right ones → track where you've applied.
+
+**Job Discovery**
+- Live job feed from Adzuna API (India-focused listings)
+- Filter by role, skills, date posted, job type, work mode, location, and match score
+- Filters run client-side so they feel instant with no extra API calls
+
+**AI Matching**
+- Upload your resume (PDF or TXT)
+- Gemini scores every job on a 0–100% scale using a weighted formula: skills (45%), experience level (30%), title relevance (25%)
+- "Best Matches for You" surfaces your top results at the top of the feed
+- Scores are calculated once on upload and reused — no repeated API calls while you filter
+
+**Application Tracking**
+- Smart popup when you return from an external job portal
+- Asks: "Did you apply?" — because the browser can't track what happens on LinkedIn or a company site
+- Honest tracking without any privacy workarounds
+
+**AI Assistant**
+- Conversational chat for job discovery and career guidance
+- Powered by Gemini
+
+---
+
+## Tech Stack
+
+| Layer | Tech |
+|---|---|
+| Frontend | React, Vite, JavaScript, CSS |
+| Backend | Node.js, Fastify |
+| AI | Google Gemini API |
+| Caching | Upstash Redis (in-memory fallback) |
+| Job Data | Adzuna API |
+| Hosting | Vercel (frontend), Render (backend) |
+
+---
+
+## Architecture
+
+Three clean layers with clear boundaries — frontend handles UI and client-side filtering, backend handles job fetching and AI orchestration, and external services provide data and intelligence.
 
 ```mermaid
 graph TB
@@ -126,90 +134,51 @@ graph TB
 
 ---
 
-## 🤖 AI Matching Logic
+## AI Matching — How It Works
 
-### Overview
-The system calculates a job–resume match score (0–100%) using a weighted approach:
-- **Skill Match**: 45%
-- **Experience Level**: 30%
-- **Title Relevance**: 25%
+When you upload a resume, the backend extracts your skills, experience level, and job title keywords. For each listing, Gemini compares those against the job description and returns a structured score.
 
-### How It Works
-1. Extract skills and keywords from resume and job description
-2. Calculate skill overlap
-3. Detect experience level alignment
-4. Match job title relevance
-5. Combine weighted scores into a final percentage
+The weighting:
+- **Skills match** — 45% (the biggest factor, as it should be)
+- **Experience level** — 30% (avoids showing senior roles to juniors and vice versa)
+- **Title relevance** — 25% (keeps the feed contextually relevant)
 
-### Match Categories
-- **High (70–100%)** – Strong match
-- **Medium (40–69%)** – Moderate match
-- **Low (<40%)** – Weak match
+Scores are bucketed into three tiers: **High (70–100%)**, **Medium (40–69%)**, **Low (<40%)**. You can filter by tier or see everything.
 
-Match scores are calculated once after resume upload and reused across filters.
+One design choice worth noting: scores are computed once on upload and cached. This keeps browsing and filtering fast, and avoids burning Gemini API quota on repeated requests.
 
 ---
 
-## 🎯 Smart Application Popup (Critical Thinking)
+## The Application Popup — A Bit of Honest Design
 
-**Problem**: Applications happen on external job portals (LinkedIn, company sites).
+There's an inherent challenge with job tracking: when you click "Apply," you leave the app and go to LinkedIn or a company website. Browser security means this app cannot know whether you actually submitted an application there.
 
-**Constraint**: Browser security prevents tracking actions on external websites.
-
-**Solution**: When a user returns to the app tab after clicking Apply, a popup asks:
-- Yes, Applied
-- Applied Earlier
-- No, Just Browsing
-
-This approach ensures accurate application tracking without violating user privacy.
+The solution is a simple popup that appears when you return to this tab, asking what happened. It's not technically clever — it's just honest about the constraint and puts the user in control. This feels better than pretending the app can track something it can't.
 
 ---
 
-## ⚡ Caching & Performance
+## Performance & Caching
 
-- Jobs fetched in batches of 50
-- Cache-first strategy with 1-hour TTL
-- Jobs fetched only when cache expires
-- Filters and search applied client-side
-- Reduces API usage while keeping listings fresh
+Jobs are fetched in batches of 50 with a cache-first strategy and a 1-hour TTL. If the cache is warm, results return in milliseconds. All filtering happens client-side, so there's no latency while you refine your search — and the app stays well within Adzuna's rate limits during normal use.
 
 ---
 
-## 📈 Scalability Considerations
+## Tradeoffs & Known Limitations
 
-- Handles 100 jobs efficiently using parallel processing
-- Architecture supports scaling to 10,000 users
-- Stateless backend design
-- Redis used for fast access and caching
-- Clear migration path to PostgreSQL + background job queues
+Worth being upfront about:
 
----
+- **No auth** — single-user demo model, no accounts or login
+- **Ephemeral storage** — application data lives in Redis/memory, not a persistent database
+- **One job source** — only Adzuna; adding more sources would significantly improve coverage
+- **AI latency** — first score calculation after upload takes a few seconds, depending on Gemini response times
 
-## ⚖️ Tradeoffs & Limitations
-
-### Current Limitations
-- No authentication (single-user demo model)
-- Redis / in-memory storage (not a permanent database)
-- AI scoring latency depends on external APIs
-- Single job data source
-
-### Future Improvements
-- User authentication (OAuth)
-- Persistent database (PostgreSQL)
-- Background job queue for AI scoring
-- Multi-source job aggregation
-- Email alerts and saved searches
+None of these are hard problems — they're just outside the current scope.
 
 ---
 
-## 🛠️ Setup Instructions
+## Running Locally
 
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-- Optional API keys (Adzuna, Gemini, Redis)
-
-### Run Locally
+**Prerequisites:** Node.js 18+, npm or yarn. API keys are optional — the app falls back gracefully without them.
 
 ```bash
 git clone https://github.com/Sarfarazsfz/smart-job-tracker.git
@@ -219,43 +188,54 @@ cd smart-job-tracker
 cd backend
 npm install
 cp .env.example .env
+# Fill in your API keys (Adzuna, Gemini, Redis — all optional)
 npm run dev
 
-# Frontend
+# Frontend (new terminal)
 cd ../frontend
 npm install
 npm run dev
 ```
 
-**Open**: http://localhost:5173
+Open `http://localhost:5173` — and you're good to go.
+
+For a full list of environment variables and what each one does, see `/docs/DEPLOYMENT.md`.
 
 ---
 
-## 📚 Documentation
+## Docs
 
-Detailed references are available in the `/docs` folder:
-- **API.md** – API endpoints and request/response details
-- **DEPLOYMENT.md** – Production deployment steps
-
----
-
-## 📝 License
-
-MIT License
+- `docs/API.md` — all endpoints with request/response examples
+- `docs/DEPLOYMENT.md` — step-by-step production deployment guide
 
 ---
 
-## 📧 Contact
+## What's Next
 
-- **GitHub**: https://github.com/Sarfarazsfz
-- **LinkedIn**: https://www.linkedin.com/in/faraz4237/
+Things that would make this meaningfully better:
+
+- User auth (OAuth) so multiple people can use it without stepping on each other
+- PostgreSQL for persistent storage of applications and resume history
+- Background job queue so AI scoring doesn't block the upload response
+- Email alerts when new high-match jobs appear
+- More job sources beyond Adzuna
 
 ---
 
-## ⭐ Support
+## License
 
-If you found this project useful, please consider giving it a star ⭐ on GitHub.
+MIT — use it however you like.
 
 ---
 
-Last Updated: Feb 2026
+<div align="center">
+
+Built by **Md Sarfaraz Alam**
+
+[GitHub](https://github.com/Sarfarazsfz) · [LinkedIn](https://www.linkedin.com/in/faraz4237/) · sarfaraz.alam.dev@gmail.com
+
+If this was useful to you, a ⭐ on GitHub is appreciated.
+
+*Last updated: February 2026*
+
+</div>

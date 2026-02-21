@@ -33,18 +33,21 @@ Built during an internship assignment, but designed to solve a real problem.
 
 ### 🖥️ Job Feed with AI Match Scores
 <!-- Add your screenshot here -->
-![Job Feed]<img width="1917" height="963" alt="MatchJobAI" src="https://github.com/user-attachments/assets/44313d57-3646-456e-8592-93edc68d8b89" />
+<img width="1917" height="963" alt="MatchJobAI" src="https://github.com/user-attachments/assets/44313d57-3646-456e-8592-93edc68d8b89" />
 ### 📄 Resume Upload & Best Matches
 <!-- Add your screenshot here -->
-![Resume Upload](screenshots/resume-upload.png)
+<img width="1918" height="873" alt="image" src="https://github.com/user-attachments/assets/f39b3e65-cdcf-4ba9-a68e-ceed2701417c" />
+
 
 ### 🤖 AI Assistant Chat
 <!-- Add your screenshot here -->
-![AI Chat](screenshots/ai-chat.png)
+<img width="1918" height="875" alt="image" src="https://github.com/user-attachments/assets/5ee1ca90-2d00-4140-99da-ed7f4bf1223b" />
+
 
 ### 📋 Application Tracker
 <!-- Add your screenshot here -->
-![Application Tracker](screenshots/tracker.png)
+<img width="1918" height="867" alt="image" src="https://github.com/user-attachments/assets/fcfdfb06-53a3-4069-953c-6e91ab8b466f" />
+
 
 > To add screenshots: create a `/screenshots` folder in the repo, add your images, and the paths above will work automatically.
 

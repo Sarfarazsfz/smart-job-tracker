@@ -32,10 +32,10 @@ Built during an internship assignment, but designed to solve a real problem.
 ## Screenshots
 
 ### 🖥️ Job Feed with AI Match Scores
-<!-- Add your screenshot here -->
+
 <img width="1917" height="963" alt="MatchJobAI" src="https://github.com/user-attachments/assets/44313d57-3646-456e-8592-93edc68d8b89" />
+
 ### 📄 Resume Upload & Best Matches
-<!-- Add your screenshot here -->
 <img width="1918" height="873" alt="image" src="https://github.com/user-attachments/assets/f39b3e65-cdcf-4ba9-a68e-ceed2701417c" />
 
 

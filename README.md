@@ -33,9 +33,7 @@ Built during an internship assignment, but designed to solve a real problem.
 
 ### 🖥️ Job Feed with AI Match Scores
 <!-- Add your screenshot here -->
-![Job Feed](<img width="1917" height="963" alt="MatchJobAI" src="https://github.com/user-attachments/assets/44313d57-3646-456e-8592-93edc68d8b89" />
-)
-
+![Job Feed]<img width="1917" height="963" alt="MatchJobAI" src="https://github.com/user-attachments/assets/44313d57-3646-456e-8592-93edc68d8b89" />
 ### 📄 Resume Upload & Best Matches
 <!-- Add your screenshot here -->
 ![Resume Upload](screenshots/resume-upload.png)

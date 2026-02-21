@@ -12,7 +12,7 @@ This project focuses on solving the real-world problem of managing job applicati
 - **Backend API**: https://smart-job-tracker-backend-r5wd.onrender.com
 - **GitHub Repository**: https://github.com/Sarfarazsfz/smart-job-tracker
 
-**Demo Note**: Upload a resume to enable AI-based job matching and personalized match scores.
+Demo Note: Upload your resume to activate AI-powered job matching and view personalized match scores.
 
 ---
 

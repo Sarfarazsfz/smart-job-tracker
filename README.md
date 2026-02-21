@@ -16,6 +16,31 @@ This project focuses on solving the real-world problem of managing job applicati
 
 ---
 
+## 🛠️ Tech Stack
+
+Frontend:
+- React
+- Vite
+- JavaScript
+- CSS
+
+Backend:
+- Node.js
+- Fastify
+
+AI Integration:
+- Google Gemini API
+
+Cache:
+- Upstash Redis
+
+External APIs:
+- Adzuna Job API
+
+Deployment:
+- Vercel (Frontend)
+- Render (Backend)
+
 ## ✨ Key Features
 
 ### Core Functionality

@@ -41,16 +41,15 @@ Built during an internship assignment, but designed to solve a real problem.
 
 
 ### 🤖 AI Assistant Chat
-<!-- Add your screenshot here -->
+
 <img width="1918" height="875" alt="image" src="https://github.com/user-attachments/assets/5ee1ca90-2d00-4140-99da-ed7f4bf1223b" />
 
 
 ### 📋 Application Tracker
-<!-- Add your screenshot here -->
+
 <img width="1918" height="867" alt="image" src="https://github.com/user-attachments/assets/fcfdfb06-53a3-4069-953c-6e91ab8b466f" />
 
 
-> To add screenshots: create a `/screenshots` folder in the repo, add your images, and the paths above will work automatically.
 
 ---
 

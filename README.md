@@ -2,7 +2,7 @@
 
 This project was built as part of an internship assignment and demonstrates end-to-end full-stack development, clean UI/UX design, and practical AI integration.
 
-An intelligent job tracking system that fetches jobs from external APIs, matches them with a user's resume using AI, provides smart application tracking, and includes a conversational AI assistant to help users navigate their job search efficiently.
+This project focuses on solving the real-world problem of managing job applications efficiently while improving decision-making using AI-powered match scoring.
 
 ---
 

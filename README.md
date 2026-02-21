@@ -249,3 +249,13 @@ MIT License
 
 - **GitHub**: https://github.com/Sarfarazsfz
 - **LinkedIn**: https://www.linkedin.com/in/faraz4237/
+
+---
+
+## ⭐ Support
+
+If you found this project useful, please consider giving it a star ⭐ on GitHub.
+
+---
+
+Last Updated: Feb 2026

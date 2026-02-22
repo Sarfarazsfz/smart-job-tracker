@@ -136,35 +136,57 @@ graph TB
 
 ---
 
-🤖 How AI Matching Works
-JobMatch AI compares your resume against job listings and generates a match score from 0–100, so you can instantly prioritize the most relevant opportunities instead of reading every posting manually.
-When you upload a resume, the system extracts your skills, keywords, and role indicators, then scores each job across three dimensions:
+## 🤖 AI Matching — How It Works
 
-Skills Match — how many required skills appear in your resume
-Experience Alignment — how closely your experience level fits the role
-Role Relevance — how similar the job title is to your background
+JobMatch AI analyzes the uploaded resume and compares it with job descriptions to calculate a match score. This helps users quickly identify the most relevant opportunities instead of manually reviewing every listing.
 
+The score is calculated using multiple factors:
 
-📊 Match Score Categories
-ScoreCategoryWhat It Means70 – 100✅ Strong MatchHighly relevant — prioritize these40 – 69🟡 Medium MatchModerately relevant — worth reviewingBelow 40🔴 Low MatchLess relevant — lower priority
-Scores are calculated once and cached, keeping browsing fast even across many listings.
+- **Skills Match** – Compares skills in the resume with job requirements
+- **Experience Level** – Checks whether the experience aligns with the job role
+- **Job Title Relevance** – Measures similarity between resume profile and job title
 
-⚡ Performance & Caching
-Job data is fetched from external APIs and cached to keep the app snappy and reduce redundant requests.
+Each job receives a **match score between 0 and 100%**, which is displayed in the UI.
 
-Jobs are cached for 1 hour using Redis
-Repeated API calls are avoided on subsequent page loads
-Caching keeps the experience smooth even under concurrent usage
+### Match Categories
 
+| Score | Category | Description |
+|------|----------|-------------|
+| 70–100% | Strong Match | Highly relevant to the user profile |
+| 40–69% | Medium Match | Partially relevant |
+| Below 40% | Low Match | Less relevant |
 
-📈 Scalability
-The system is built to grow. Its current architecture supports:
+This scoring system helps users focus on the most suitable jobs first.
 
-Parallel job matching processing
-Stateless backend (easy to scale horizontally)
-Redis-based caching layer
-Plug-in support for PostgreSQL or other databases
-Background job processing for async workloads
+---
+
+## ⚡ Performance and Caching
+
+To ensure fast performance and reduce external API usage, the system uses caching.
+
+Key optimizations:
+
+- Job data is cached for **1 hour**
+- **Redis** is used for fast data retrieval
+- Prevents repeated API calls for the same data
+- Improves overall response time and user experience
+
+This approach makes the application efficient and scalable.
+
+---
+
+## 📈 Scalability
+
+The backend is designed with scalability in mind and can handle increasing traffic with minimal changes.
+
+Current design supports:
+
+- Parallel processing of job data
+- Stateless backend architecture
+- Easy integration with a persistent database like PostgreSQL
+- Ability to add background job processing for AI scoring
+
+This allows the system to scale from a demo project to a production-ready application.
 
 ---
 

@@ -136,86 +136,98 @@ graph TB
 
 ---
 
-## AI Matching — How It Works
+## 🤖 AI Matching — How It Works
 
-🤖 AI Matching Logic
+JobMatch AI analyzes the uploaded resume and compares it with job descriptions to calculate a match score. This helps users quickly identify the most relevant opportunities instead of manually reviewing every listing.
 
-The system calculates a match score between the resume and job description.
+The score is calculated using multiple factors:
 
-Score is based on:
+- **Skills Match** – Compares skills in the resume with job requirements
+- **Experience Level** – Checks whether the experience aligns with the job role
+- **Job Title Relevance** – Measures similarity between resume profile and job title
 
-Skills match
+Each job receives a **match score between 0 and 100%**, which is displayed in the UI.
 
-Experience level
+### Match Categories
 
-Job title relevance
+| Score | Category | Description |
+|------|----------|-------------|
+| 70–100% | Strong Match | Highly relevant to the user profile |
+| 40–69% | Medium Match | Partially relevant |
+| Below 40% | Low Match | Less relevant |
 
-Each job gets a score from 0 to 100%.
+This scoring system helps users focus on the most suitable jobs first.
 
-Match Categories
-Score	Meaning
-70–100	Strong Match
-40–69	Medium Match
-Below 40	Low Match
-⚡ Performance and Caching
+---
 
-To improve performance:
+## ⚡ Performance and Caching
 
-Jobs are cached for 1 hour
+To ensure fast performance and reduce external API usage, the system uses caching.
 
-Redis is used for fast access
+Key optimizations:
 
-Reduces API calls
+- Job data is cached for **1 hour**
+- **Redis** is used for fast data retrieval
+- Prevents repeated API calls for the same data
+- Improves overall response time and user experience
 
-Improves response time
+This approach makes the application efficient and scalable.
 
-📈 Scalability
+---
 
-The system is designed to scale.
+## 📈 Scalability
 
-Supports:
+The backend is designed with scalability in mind and can handle increasing traffic with minimal changes.
 
-Parallel job processing
+Current design supports:
 
-Stateless backend
+- Parallel processing of job data
+- Stateless backend architecture
+- Easy integration with a persistent database like PostgreSQL
+- Ability to add background job processing for AI scoring
 
-Easy migration to database
+This allows the system to scale from a demo project to a production-ready application.
 
-Background job support
+---
 
-⚠️ Limitations
+## ⚠️ Current Limitations
 
-Current version:
+This project was built as part of an internship assignment, so some production features are not included yet.
 
-No authentication
+Current limitations:
 
-Single user design
+- No user authentication system
+- Designed for single-user usage
+- Depends on external APIs for job data and AI scoring
+- No permanent database storage
 
-Depends on external APIs
+These limitations were intentionally kept to focus on core functionality.
 
-🔮 Future Improvements
+---
 
-Planned features:
+## 🔮 Future Improvements
 
-User login
+Planned enhancements for future versions:
 
-Save jobs
+- User authentication and account system
+- Ability to save and manage jobs
+- Email notifications for new matching jobs
+- Integration with multiple job APIs
+- Database integration for persistent storage
+- Improved AI matching accuracy
 
-Email alerts
+---
 
-Multiple job sources
+## 🛠️ Setup Instructions
 
-Database integration
+### Prerequisites
 
-🛠️ Setup Instructions
-Requirements
+Make sure the following tools are installed:
 
-Install:
+- Node.js (version 18 or higher)
+- npm (comes with Node.js)
 
-Node.js
-
-npm
-
+---
 ## Tradeoffs & Known Limitations
 
 Worth being upfront about:

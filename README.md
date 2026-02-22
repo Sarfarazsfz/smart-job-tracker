@@ -138,16 +138,26 @@ graph TB
 
 ## AI Matching — How It Works
 
-When you upload a resume, the backend extracts your skills, experience level, and job title keywords. For each listing, Gemini compares those against the job description and returns a structured score.
+🤖 AI Matching Logic
 
-The weighting:
-- **Skills match** — 45% (the biggest factor, as it should be)
-- **Experience level** — 30% (avoids showing senior roles to juniors and vice versa)
-- **Title relevance** — 25% (keeps the feed contextually relevant)
+The system calculates a match score between the resume and job description.
 
-Scores are bucketed into three tiers: **High (70–100%)**, **Medium (40–69%)**, **Low (<40%)**. You can filter by tier or see everything.
+Score is based on:
 
-One design choice worth noting: scores are computed once on upload and cached. This keeps browsing and filtering fast, and avoids burning Gemini API quota on repeated requests.
+Skills match
+
+Experience level
+
+Job title relevance
+
+Each job gets a score from 0 to 100%.
+
+| Score    | Meaning      |
+| -------- | ------------ |
+| 70–100   | Strong Match |
+| 40–69    | Medium Match |
+| Below 40 | Low Match    |
+
 
 ---
 

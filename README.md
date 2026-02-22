@@ -152,28 +152,69 @@ Job title relevance
 
 Each job gets a score from 0 to 100%.
 
-| Score    | Meaning      |
-| -------- | ------------ |
-| 70–100   | Strong Match |
-| 40–69    | Medium Match |
-| Below 40 | Low Match    |
+Match Categories
+Score	Meaning
+70–100	Strong Match
+40–69	Medium Match
+Below 40	Low Match
+⚡ Performance and Caching
 
+To improve performance:
 
----
+Jobs are cached for 1 hour
 
-## The Application Popup — A Bit of Honest Design
+Redis is used for fast access
 
-There's an inherent challenge with job tracking: when you click "Apply," you leave the app and go to LinkedIn or a company website. Browser security means this app cannot know whether you actually submitted an application there.
+Reduces API calls
 
-The solution is a simple popup that appears when you return to this tab, asking what happened. It's not technically clever — it's just honest about the constraint and puts the user in control. This feels better than pretending the app can track something it can't.
+Improves response time
 
----
+📈 Scalability
 
-## Performance & Caching
+The system is designed to scale.
 
-Jobs are fetched in batches of 50 with a cache-first strategy and a 1-hour TTL. If the cache is warm, results return in milliseconds. All filtering happens client-side, so there's no latency while you refine your search — and the app stays well within Adzuna's rate limits during normal use.
+Supports:
 
----
+Parallel job processing
+
+Stateless backend
+
+Easy migration to database
+
+Background job support
+
+⚠️ Limitations
+
+Current version:
+
+No authentication
+
+Single user design
+
+Depends on external APIs
+
+🔮 Future Improvements
+
+Planned features:
+
+User login
+
+Save jobs
+
+Email alerts
+
+Multiple job sources
+
+Database integration
+
+🛠️ Setup Instructions
+Requirements
+
+Install:
+
+Node.js
+
+npm
 
 ## Tradeoffs & Known Limitations
 

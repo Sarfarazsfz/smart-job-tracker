@@ -24,8 +24,6 @@ JobMatch AI is an AI-assisted job discovery platform that analyzes resumes and r
 
 The system connects resumes to live job listings and uses AI to calculate a relevance score for each job.
 
-Production-style full-stack application demonstrating AI integration, caching strategies, and scalable backend design.
-
 > **Demo tip:** The AI matching only activates after you upload a resume.
 
 ---
@@ -92,6 +90,14 @@ Production-style full-stack application demonstrating AI integration, caching st
 | Hosting | Vercel (frontend), Render (backend) |
 
 ---
+
+## Design Goals
+
+- Fast job relevance scoring
+- Minimize external API calls using caching
+- Stateless backend for scalability
+- Clean separation of frontend and backend
+
 ## Key Engineering Decisions
 ---
 
@@ -113,7 +119,7 @@ Filtering happens on the frontend for instant UX and reduced backend load.
 
 ## Architecture
 
-Three clean layers with clear boundaries — frontend handles UI and client-side filtering, backend handles job fetching and AI orchestration, and external services provide data and intelligence.
+The system follows a three-layer architecture separating frontend, backend, and external service responsibilities.
 
 ```mermaid
 graph TB
@@ -153,6 +159,16 @@ graph TB
     AIService --> AI
 ```
 
+---
+## Data Flow
+
+1. User uploads resume from frontend
+2. Resume sent to backend API
+3. Backend extracts skills and keywords
+4. Backend fetches job listings
+5. AI service calculates match scores
+6. Results stored in Redis cache
+7. Frontend displays ranked jobs
 ---
 
 ## 🤖 AI Matching — How It Works
@@ -293,6 +309,7 @@ Things that would make this meaningfully better:
 - More job sources beyond Adzuna
 
 ---
+
 ## Performance
 
 Average response times:
@@ -315,7 +332,7 @@ Developed by **Md Sarfaraz Alam**
 
 [GitHub](https://github.com/Sarfarazsfz) · [LinkedIn](https://www.linkedin.com/in/faraz4237/) · sarfaraz.alam.dev@gmail.com
 
-If you find this project useful, consider giving it a⭐
+If you find this project useful, consider giving it a ⭐
 *Last updated: February 2026*
 
 </div>

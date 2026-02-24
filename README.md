@@ -6,13 +6,10 @@ Production-style full-stack application demonstrating AI integration, caching st
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![Node.js](https://img.shields.io/badge/Node.js-18-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Fastify](https://img.shields.io/badge/Fastify-4-000000?style=flat-square&logo=fastify)
-
 ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-AI-4285F4?style=flat-square&logo=google&logoColor=white)
 ![OpenAI](https://img.shields.io/badge/OpenAI-API-412991?style=flat-square&logo=openai&logoColor=white)
-
 ![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D?style=flat-square&logo=redis&logoColor=white)
 ![Adzuna](https://img.shields.io/badge/Adzuna-Job%20API-003E54?style=flat-square)
-
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
 **AI-powered job matching platform that scores resume relevance against real job listings.**

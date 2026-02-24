@@ -22,9 +22,9 @@ Production-style full-stack application demonstrating AI integration, caching st
 
 JobMatch AI is an AI-assisted job discovery platform that analyzes resumes and ranks job listings based on relevance. Instead of manually evaluating hundreds of listings, users receive a quantified match score to prioritize applications more effectively.
 
-This app connects your resume to real job listings and uses Google Gemini to score how well you match each role. Instead of guessing, you get a clear percentage and can focus your energy on applications that actually make sense.
+The system connects resumes to live job listings and uses AI to calculate a relevance score for each job.
 
-Designed as a production-style system to explore practical AI integration in real-world job discovery workflows.
+Production-style full-stack application demonstrating AI integration, caching strategies, and scalable backend design.
 
 > **Demo tip:** The AI matching only activates after you upload a resume.
 
@@ -93,6 +93,7 @@ Designed as a production-style system to explore practical AI integration in rea
 
 ---
 ## Key Engineering Decisions
+---
 
 **Cache-first architecture**
 
@@ -210,14 +211,14 @@ This allows the system to scale from a demo project to a production-ready applic
 
 ## ⚠️ Current Limitations
 
-This project was built as part of an internship assignment, so some production features are not included yet.
+This version focuses on core functionality and system design.
 
 Current limitations:
 
-- No user authentication system
-- Designed for single-user usage
-- Depends on external APIs for job data and AI scoring
-- No permanent database storage
+- **No auth** — single-user demo model, no accounts or login
+- **Ephemeral storage** — application data lives in Redis/memory, not a persistent database
+- **One job source** — only Adzuna; adding more sources would significantly improve coverage
+- **AI latency** — first score calculation after upload takes a few seconds, depending on Gemini response times
 
 These limitations were intentionally kept to focus on core functionality.
 
@@ -244,18 +245,6 @@ Make sure the following tools are installed:
 
 - Node.js (version 18 or higher)
 - npm (comes with Node.js)
-
----
-## Current Limitations
-
-Worth being upfront about:
-
-- **No auth** — single-user demo model, no accounts or login
-- **Ephemeral storage** — application data lives in Redis/memory, not a persistent database
-- **One job source** — only Adzuna; adding more sources would significantly improve coverage
-- **AI latency** — first score calculation after upload takes a few seconds, depending on Gemini response times
-
-None of these are hard problems — they're just outside the current scope.
 
 ---
 
@@ -326,8 +315,7 @@ Developed by **Md Sarfaraz Alam**
 
 [GitHub](https://github.com/Sarfarazsfz) · [LinkedIn](https://www.linkedin.com/in/faraz4237/) · sarfaraz.alam.dev@gmail.com
 
-If this was useful to you, a ⭐ on GitHub is appreciated.
-
+If you find this project useful, consider giving it a⭐
 *Last updated: February 2026*
 
 </div>

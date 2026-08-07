@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useAuth } from '@clerk/clerk-react'
+import { useAuth, SignInButton } from '@clerk/clerk-react'
 import ResumeProgressModal from './ResumeProgressModal'
 import DeleteConfirmModal from './DeleteConfirmModal'
 import { FileText, UploadCloud, X, AlertCircle, FileType, Trash2 } from 'lucide-react'
@@ -7,7 +7,7 @@ import { FileText, UploadCloud, X, AlertCircle, FileType, Trash2 } from 'lucide-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 export default function ResumeModal({ onClose, onUpload, hasExisting }) {
-    const { getToken } = useAuth()
+    const { getToken, isLoaded, isSignedIn } = useAuth()
     const [file, setFile] = useState(null)
     const [text, setText] = useState('')
     const [uploading, setUploading] = useState(false)
@@ -87,6 +87,12 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
     }
 
     const handleUpload = async () => {
+        if (!isLoaded) return;
+        if (!isSignedIn) {
+            setError('You must be signed in to upload a resume.')
+            return;
+        }
+
         setError('')
         setUploading(true)
         startProgressSimulation()
@@ -151,6 +157,10 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
     }
 
     const confirmDelete = async () => {
+        if (!isLoaded || !isSignedIn) {
+            setError('You must be signed in to delete a resume.')
+            return;
+        }
         setShowDeleteConfirm(false)
         setDeleting(true)
         setError('')
@@ -327,20 +337,30 @@ Include your skills, experience, education, and any other relevant information."
                         >
                             {hasExisting ? 'Cancel' : 'Skip for now'}
                         </button>
-                        <button
-                            className="flex-1 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow inline-flex items-center justify-center gap-2"
-                            onClick={handleUpload}
-                            disabled={!isValid || uploading}
-                        >
-                            {uploading ? (
-                                <>
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Processing...
-                                </>
-                            ) : (
-                                hasExisting ? 'Update Resume' : 'Upload Resume'
-                            )}
-                        </button>
+                        {(!isLoaded || !isSignedIn) ? (
+                            <SignInButton mode="modal">
+                                <button
+                                    className="flex-1 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow inline-flex items-center justify-center gap-2"
+                                >
+                                    Sign In to Upload
+                                </button>
+                            </SignInButton>
+                        ) : (
+                            <button
+                                className="flex-1 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow inline-flex items-center justify-center gap-2"
+                                onClick={handleUpload}
+                                disabled={!isValid || uploading}
+                            >
+                                {uploading ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    hasExisting ? 'Update Resume' : 'Upload Resume'
+                                )}
+                            </button>
+                        )}
                     </div>
 
                     {/* Delete Resume Button - Only shown when resume exists */}

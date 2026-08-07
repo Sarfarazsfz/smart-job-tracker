@@ -450,6 +450,11 @@ function App() {
   const handleApplicationConfirm = async (confirmed, type) => {
     if (confirmed && pendingApplication) {
       try {
+        if (!isLoaded || !isSignedIn) {
+          // Can't save application if signed out. Just close popup.
+          setPendingApplication(null)
+          return
+        }
         const token = await getToken()
         await fetch(`${API_URL}/applications`, {
           method: 'POST',
@@ -487,6 +492,7 @@ function App() {
 
   const updateApplicationStatus = async (appId, newStatus) => {
     try {
+      if (!isLoaded || !isSignedIn) return
       const token = await getToken()
       await fetch(`${API_URL}/applications/${appId}`, {
         method: 'PATCH',

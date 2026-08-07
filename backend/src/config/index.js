@@ -24,5 +24,6 @@ export const config = {
   },
   auth: {
     clerkSecretKey: process.env.CLERK_SECRET_KEY,
+    clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY,
   }
 };

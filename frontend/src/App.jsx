@@ -16,7 +16,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 const JOBS_PER_PAGE = 12
 
 function App() {
-  const { getToken, isLoaded, isSignedIn } = useAuth()
+  const { getToken } = useAuth()
   const [activeTab, setActiveTab] = useState('jobs')
   const [showResumeModal, setShowResumeModal] = useState(false)
   const [showAISidebar, setShowAISidebar] = useState(false)
@@ -38,45 +38,13 @@ function App() {
   const [allJobs, setAllJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [applications, setApplications] = useState([])
-  const [isDarkMode, setIsDarkMode] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(null) // Track last fetch time
 
   // Pagination state (moved to App so filtering+sorting happen first)
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
-    if (isLoaded) {
-      if (isSignedIn) {
-        checkResume()
-        fetchApplications()
-      } else {
-        setHasResume(false)
-        setApplications([])
-      }
-    }
-  }, [isLoaded, isSignedIn])
-
-  useEffect(() => {
-    if (isLoaded) {
-      fetchJobs()
-    }
-  }, [isLoaded])
-
-  useEffect(() => {
-    // Check dark mode
-    const checkDarkMode = () => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'))
-    }
-    checkDarkMode()
-
-    // Watch for theme changes
-    const observer = new MutationObserver(checkDarkMode)
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    })
-
-    return () => observer.disconnect()
+    checkResume()
   }, [])
 
   // Reset page to 1 whenever any filter changes (important so users see top results)
@@ -300,7 +268,12 @@ function App() {
 
   const totalPages = Math.max(1, Math.ceil(filteredAndSortedJobs.length / JOBS_PER_PAGE))
 
-
+  useEffect(() => {
+    // Fetch jobs + applications once on mount
+    fetchJobs()
+    fetchApplications()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // run once on mount
 
   useEffect(() => {
     if (activeTab === 'applications') {
@@ -320,36 +293,28 @@ function App() {
   }, [pendingApplication])
 
   const checkResume = async () => {
-    if (!isLoaded || !isSignedIn) return;
     try {
-      console.log('[Resume Check] Fetching resume status from backend...')
       const token = await getToken()
-      if (!token) return;
-      const headers = { 'Authorization': `Bearer ${token}` }
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
       const res = await fetch(`${API_URL}/resume`, { headers })
 
       if (!res.ok) {
-        console.error('[Resume Check] Backend returned error:', res.status)
         setHasResume(false) // Explicitly set to false on error
         setTimeout(() => setShowResumeModal(true), 1000)
         return
       }
 
       const data = await res.json()
-      console.log('[Resume Check] Backend response:', data)
 
       // Strict boolean check to ensure we only set true when explicitly true
       const resumeExists = data.hasResume === true
       setHasResume(resumeExists)
 
       if (!resumeExists) {
-        console.log('[Resume Check] No resume found, showing upload modal')
         setTimeout(() => setShowResumeModal(true), 1000)
-      } else {
-        console.log('[Resume Check] Resume already uploaded')
       }
     } catch (error) {
-      console.error('[Resume Check] Error checking resume:', error)
+      console.error('Error checking resume:', error)
       setHasResume(false) // Explicitly set to false on error
       setTimeout(() => setShowResumeModal(true), 1000)
     }
@@ -370,7 +335,6 @@ function App() {
         if (cachedJobs && cachedTimestamp) {
           const age = Date.now() - parseInt(cachedTimestamp)
           if (age < CACHE_DURATION) {
-            console.log('✅ Using cached jobs from localStorage')
             setAllJobs(JSON.parse(cachedJobs))
             setLastUpdated(new Date(parseInt(cachedTimestamp)))
             setLoading(false)
@@ -388,14 +352,12 @@ function App() {
           const token = await getToken()
           const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
           await fetch(`${API_URL}/jobs/clear-cache`, { method: 'POST', headers })
-          console.log('🗑️ Backend job cache cleared')
         } catch (e) {
           console.warn('Could not clear backend cache:', e.message)
         }
       }
 
       // Fetch fresh jobs from API
-      console.log('🔄 Fetching fresh jobs from API')
       const token = await getToken()
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
       const res = await fetch(`${API_URL}/jobs`, { headers })
@@ -410,8 +372,6 @@ function App() {
       localStorage.setItem(CACHE_KEY, JSON.stringify(jobs))
       localStorage.setItem(CACHE_TIMESTAMP_KEY, timestamp.toString())
       setLastUpdated(new Date(timestamp))
-
-      console.log(`📦 Cached ${jobs.length} jobs in localStorage`)
     } catch (error) {
       console.error('Error fetching jobs:', error)
     } finally {
@@ -420,7 +380,6 @@ function App() {
   }
 
   const fetchApplications = async () => {
-    if (!isLoaded || !isSignedIn) return;
     try {
       const token = await getToken()
       if (!token) return // Don't fetch applications if not signed in
@@ -451,21 +410,12 @@ function App() {
   const handleApplicationConfirm = async (confirmed, type) => {
     if (confirmed && pendingApplication) {
       try {
-        if (!isLoaded || !isSignedIn) {
-          // Can't save application if signed out. Just close popup.
-          setPendingApplication(null)
-          return
-        }
         const token = await getToken()
-        if (!token) {
-          setPendingApplication(null)
-          return
-        }
         await fetch(`${API_URL}/applications`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
           },
           body: JSON.stringify({
             jobId: pendingApplication.id,
@@ -497,14 +447,12 @@ function App() {
 
   const updateApplicationStatus = async (appId, newStatus) => {
     try {
-      if (!isLoaded || !isSignedIn) return
       const token = await getToken()
-      if (!token) return
       await fetch(`${API_URL}/applications/${appId}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({ status: newStatus })
       })

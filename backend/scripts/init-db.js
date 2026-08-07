@@ -7,18 +7,14 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load env vars
-dotenv.config({ path: path.join(__dirname, '../.env') });
-
-// Import config AFTER dotenv so it picks up the .env variables
-const { config } = await import('../src/config/index.js');
+import { config } from '../src/config/index.js';
 
 const { Pool } = pg;
 
 async function initDb() {
     console.log('Connecting to PostgreSQL database...');
     
-    if (!process.env.DATABASE_URL) {
+    if (!config.db.url) {
         console.error('Error: DATABASE_URL environment variable is missing.');
         process.exit(1);
     }

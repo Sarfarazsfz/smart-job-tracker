@@ -7,11 +7,12 @@ import { FileText, UploadCloud, X, AlertCircle, FileType, Trash2 } from 'lucide-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 export default function ResumeModal({ onClose, onUpload, hasExisting }) {
-    const { getToken, isLoaded, isSignedIn } = useAuth()
+    const { getToken } = useAuth()
     const [file, setFile] = useState(null)
     const [text, setText] = useState('')
     const [uploading, setUploading] = useState(false)
     const [error, setError] = useState('')
+    const [isUnauthorized, setIsUnauthorized] = useState(false)
     const [mode, setMode] = useState('upload') // 'upload' or 'paste'
     const [dragActive, setDragActive] = useState(false)
     const [showProgress, setShowProgress] = useState(false)
@@ -87,13 +88,8 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
     }
 
     const handleUpload = async () => {
-        if (!isLoaded) return;
-        if (!isSignedIn) {
-            setError('You must be signed in to upload a resume.')
-            return;
-        }
-
         setError('')
+        setIsUnauthorized(false)
         setUploading(true)
         startProgressSimulation()
 
@@ -103,25 +99,7 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 formData.append('file', file)
 
                 const token = await getToken()
-                
-                console.log('[AUTH CLIENT DEBUG] isLoaded:', isLoaded)
-                console.log('[AUTH CLIENT DEBUG] isSignedIn:', isSignedIn)
-                console.log('[AUTH CLIENT DEBUG] token present:', !!token)
-                console.log('[AUTH CLIENT DEBUG] token length:', token?.length || 0)
-                
-                if (!token) {
-                    console.error('[AUTH CLIENT DEBUG] Clerk returned no token')
-                    setError('Authentication token unavailable. Please sign in again.')
-                    setUploading(false)
-                    setShowProgress(false)
-                    return
-                }
-
-                const headers = {
-                    'Authorization': `Bearer ${token}`
-                }
-                
-                console.log('[AUTH CLIENT DEBUG] authorization header present:', !!headers.Authorization)
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
 
                 const res = await fetch(`${API_URL}/resume/upload`, {
                     method: 'POST',
@@ -131,6 +109,10 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
 
                 const data = await res.json()
 
+                if (res.status === 401) {
+                    setIsUnauthorized(true)
+                    throw new Error('Please sign in to upload your resume and get personalized job matches.')
+                }
                 if (!res.ok) {
                     throw new Error(data.error || 'Upload failed')
                 }
@@ -139,23 +121,21 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 onUpload()
             } else if (mode === 'paste' && text.trim()) {
                 const token = await getToken()
-                if (!token) {
-                    setError('Authentication token unavailable. Please sign in again.')
-                    setUploading(false)
-                    setShowProgress(false)
-                    return
-                }
                 const res = await fetch(`${API_URL}/resume/text`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                     },
                     body: JSON.stringify({ text })
                 })
 
                 const data = await res.json()
 
+                if (res.status === 401) {
+                    setIsUnauthorized(true)
+                    throw new Error('Please sign in to upload your resume and get personalized job matches.')
+                }
                 if (!res.ok) {
                     throw new Error(data.error || 'Save failed')
                 }
@@ -181,23 +161,13 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
     }
 
     const confirmDelete = async () => {
-        if (!isLoaded || !isSignedIn) {
-            setError('You must be signed in to delete a resume.')
-            return;
-        }
         setShowDeleteConfirm(false)
         setDeleting(true)
         setError('')
 
         try {
             const token = await getToken()
-            if (!token) {
-                setError('Authentication token unavailable. Please sign in again.')
-                setDeleting(false)
-                return
-            }
-            
-            const headers = { 'Authorization': `Bearer ${token}` }
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
 
             const res = await fetch(`${API_URL}/resume`, {
                 method: 'DELETE',
@@ -235,11 +205,11 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
     const isValid = (mode === 'upload' && file) || (mode === 'paste' && text.trim().length >= 50)
 
     return (
-        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-2xl w-full shadow-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                 {/* Close button */}
                 <button
-                    className="absolute top-4 right-4 md:top-6 md:right-6 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                    className="absolute top-3 right-3 md:top-6 md:right-6 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                     onClick={onClose}
                 >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -249,9 +219,9 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 </button>
 
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <FileText className="w-12 h-12 mx-auto mb-4 text-indigo-500" strokeWidth={1.5} />
-                    <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                <div className="text-center mb-6 md:mb-8">
+                    <FileText className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 text-indigo-500" strokeWidth={1.5} />
+                    <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-1.5 md:mb-2">
                         {hasExisting ? 'Update Your Resume' : 'Upload Your Resume'}
                     </h2>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -286,7 +256,7 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 {/* Upload/Paste Area */}
                 {mode === 'upload' ? (
                     <div
-                        className={`border-2 border-dashed rounded-2xl p-8 md:p-12 text-center cursor-pointer transition-all duration-150
+                        className={`border-2 border-dashed rounded-2xl p-6 md:p-12 text-center cursor-pointer transition-all duration-150
                             ${dragActive
                                 ? 'border-indigo-500 bg-indigo-500/5'
                                 : file
@@ -326,18 +296,18 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                             </div>
                         ) : (
                             <>
-                                <UploadCloud className="w-12 h-12 mx-auto mb-4 text-slate-400" strokeWidth={1.5} />
-                                <p className="text-slate-700 dark:text-slate-300 mb-1">
+                                <UploadCloud className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 text-slate-400" strokeWidth={1.5} />
+                                <p className="text-sm md:text-base text-slate-700 dark:text-slate-300 mb-1">
                                     <strong className="font-semibold">Click to upload</strong> or drag and drop
                                 </p>
-                                <p className="text-sm text-slate-500 dark:text-slate-500">PDF or TXT (max 10MB)</p>
+                                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-500">PDF or TXT (max 10MB)</p>
                             </>
                         )}
                     </div>
                 ) : (
                     <div className="space-y-2">
                         <textarea
-                            className="w-full h-64 px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"
+                            className="w-full h-48 md:h-64 px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"
                             placeholder="Paste your resume text here...
 
 Include your skills, experience, education, and any other relevant information."
@@ -352,45 +322,46 @@ Include your skills, experience, education, and any other relevant information."
 
                 {/* Error Message */}
                 {error && (
-                    <div className="mt-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-sm text-red-600 dark:text-red-400">
-                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                        {error}
+                    <div className="mt-4 flex flex-col gap-3 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-sm text-red-600 dark:text-red-400">
+                        <div className="flex items-center gap-2">
+                            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                            <span>{error}</span>
+                        </div>
+                        {isUnauthorized && (
+                            <div className="ml-7">
+                                <SignInButton mode="modal">
+                                    <button className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium shadow-sm transition-all text-sm">
+                                        Sign In
+                                    </button>
+                                </SignInButton>
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex flex-col gap-3 mt-8">
+                <div className="flex flex-col gap-3 mt-6 md:mt-8">
                     <div className="flex flex-col-reverse sm:flex-row gap-3">
                         <button
-                            className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-medium text-sm transition-colors"
+                            className="flex-1 px-4 py-2.5 md:px-6 md:py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-medium text-sm transition-colors"
                             onClick={onClose}
                         >
                             {hasExisting ? 'Cancel' : 'Skip for now'}
                         </button>
-                        {(!isLoaded || !isSignedIn) ? (
-                            <SignInButton mode="modal">
-                                <button
-                                    className="flex-1 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow inline-flex items-center justify-center gap-2"
-                                >
-                                    Sign In to Upload
-                                </button>
-                            </SignInButton>
-                        ) : (
-                            <button
-                                className="flex-1 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow inline-flex items-center justify-center gap-2"
-                                onClick={handleUpload}
-                                disabled={!isValid || uploading}
-                            >
-                                {uploading ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Processing...
-                                    </>
-                                ) : (
-                                    hasExisting ? 'Update Resume' : 'Upload Resume'
-                                )}
-                            </button>
-                        )}
+                        <button
+                            className="flex-1 px-4 py-2.5 md:px-6 md:py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow inline-flex items-center justify-center gap-2"
+                            onClick={handleUpload}
+                            disabled={!isValid || uploading}
+                        >
+                            {uploading ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Processing...
+                                </>
+                            ) : (
+                                hasExisting ? 'Update Resume' : 'Upload Resume'
+                            )}
+                        </button>
                     </div>
 
                     {/* Delete Resume Button - Only shown when resume exists */}

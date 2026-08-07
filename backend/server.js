@@ -24,9 +24,10 @@ await initDb();
 
 // Register Clerk for authentication
 import { clerkPlugin } from '@clerk/fastify';
-fastify.register(clerkPlugin, {
-  publishableKey: config.auth.clerkPublishableKey,
-  secretKey: config.auth.clerkSecretKey
+
+await fastify.register(clerkPlugin, {
+    publishableKey: config.auth.clerkPublishableKey,
+    secretKey: config.auth.clerkSecretKey
 });
 
 // Register routes

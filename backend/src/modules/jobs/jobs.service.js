@@ -27,19 +27,15 @@ export async function fetchJobs(filters = {}) {
 
     let jobs = null;
 
-    if (process.env.NODE_ENV === 'test') {
+    jobs = await fetchFromAdzuna(filters);
+
+    if (!jobs || jobs.length === 0) {
+        jobs = await fetchFromJSearch(filters);
+    }
+
+    if (!jobs || jobs.length === 0) {
+        console.log('Using mock data as fallback');
         jobs = applyFilters(MOCK_JOBS, filters);
-    } else {
-        jobs = await fetchFromAdzuna(filters);
-
-        if (!jobs || jobs.length === 0) {
-            jobs = await fetchFromJSearch(filters);
-        }
-
-        if (!jobs || jobs.length === 0) {
-            console.log('Using mock data as fallback');
-            jobs = applyFilters(MOCK_JOBS, filters);
-        }
     }
 
     await repository.cacheJobsData(cacheKey, jobs, 3600);

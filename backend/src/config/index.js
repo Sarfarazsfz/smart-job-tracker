@@ -10,8 +10,8 @@ export const config = {
   db: {
     url: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') && !process.env.DATABASE_URL.includes('127.0.0.1')
-        ? { rejectUnauthorized: false }
-        : false
+      ? { rejectUnauthorized: false }
+      : false,
   },
   ai: {
     geminiKey: process.env.GEMINI_API_KEY,
@@ -23,7 +23,7 @@ export const config = {
     rapidApiKey: process.env.RAPIDAPI_KEY,
   },
   auth: {
-    clerkSecretKey: process.env.CLERK_SECRET_KEY,
     clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    clerkSecretKey: process.env.CLERK_SECRET_KEY,
   }
 };

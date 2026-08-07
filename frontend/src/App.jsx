@@ -324,7 +324,8 @@ function App() {
     try {
       console.log('[Resume Check] Fetching resume status from backend...')
       const token = await getToken()
-      const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+      if (!token) return;
+      const headers = { 'Authorization': `Bearer ${token}` }
       const res = await fetch(`${API_URL}/resume`, { headers })
 
       if (!res.ok) {
@@ -456,11 +457,15 @@ function App() {
           return
         }
         const token = await getToken()
+        if (!token) {
+          setPendingApplication(null)
+          return
+        }
         await fetch(`${API_URL}/applications`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             jobId: pendingApplication.id,
@@ -494,11 +499,12 @@ function App() {
     try {
       if (!isLoaded || !isSignedIn) return
       const token = await getToken()
+      if (!token) return
       await fetch(`${API_URL}/applications/${appId}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ status: newStatus })
       })

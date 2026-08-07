@@ -1,34 +1,90 @@
-import { getRedis } from '../../services/cache/cache.service.js';
+import { getDb } from '../../services/db/db.service.js';
 
 export async function saveApplication(userId, application) {
-    const r = getRedis();
-    const key = `applications:${userId}`;
-    const apps = await getApplications(userId);
-    apps.push(application);
-    await r.set(key, JSON.stringify(apps));
+    const db = getDb();
+    const query = `
+        INSERT INTO applications (id, user_id, job_id, job_title, company, apply_url, status, applied_at, updated_at, timeline)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `;
+    const values = [
+        application.id,
+        userId,
+        application.jobId,
+        application.jobTitle,
+        application.company,
+        application.applyUrl,
+        application.status,
+        application.appliedAt,
+        application.updatedAt,
+        JSON.stringify(application.timeline || [])
+    ];
+    await db.query(query, values);
 }
 
 export async function getApplications(userId) {
-    const r = getRedis();
-    const data = await r.get(`applications:${userId}`);
-    return data ? (typeof data === 'string' ? JSON.parse(data) : data) : [];
+    const db = getDb();
+    const query = `
+        SELECT id, job_id as "jobId", job_title as "jobTitle", company, apply_url as "applyUrl", status, 
+               applied_at as "appliedAt", updated_at as "updatedAt", timeline
+        FROM applications
+        WHERE user_id = $1
+        ORDER BY applied_at DESC
+    `;
+    const result = await db.query(query, [userId]);
+    
+    // Map dates back to ISO strings to match existing API contract
+    return result.rows.map(row => ({
+        ...row,
+        appliedAt: row.appliedAt ? new Date(row.appliedAt).toISOString() : null,
+        updatedAt: row.updatedAt ? new Date(row.updatedAt).toISOString() : null
+    }));
 }
 
 export async function updateApplication(userId, appId, updates) {
-    const r = getRedis();
-    const apps = await getApplications(userId);
-    const index = apps.findIndex(a => a.id === appId);
-    if (index !== -1) {
-        apps[index] = { ...apps[index], ...updates };
-        await r.set(`applications:${userId}`, JSON.stringify(apps));
-        return apps[index];
+    const db = getDb();
+    
+    const fields = [];
+    const values = [userId, appId];
+    let queryIndex = 3;
+
+    if (updates.status !== undefined) {
+        fields.push(`status = $${queryIndex++}`);
+        values.push(updates.status);
     }
+    if (updates.updatedAt !== undefined) {
+        fields.push(`updated_at = $${queryIndex++}`);
+        values.push(updates.updatedAt);
+    }
+    if (updates.timeline !== undefined) {
+        fields.push(`timeline = $${queryIndex++}`);
+        values.push(JSON.stringify(updates.timeline));
+    }
+
+    if (fields.length === 0) return null;
+
+    const query = `
+        UPDATE applications
+        SET ${fields.join(', ')}
+        WHERE user_id = $1 AND id = $2
+        RETURNING id, job_id as "jobId", job_title as "jobTitle", company, apply_url as "applyUrl", status, 
+                  applied_at as "appliedAt", updated_at as "updatedAt", timeline
+    `;
+
+    const result = await db.query(query, values);
+    if (result.rows.length > 0) {
+        const row = result.rows[0];
+        return {
+            ...row,
+            appliedAt: row.appliedAt ? new Date(row.appliedAt).toISOString() : null,
+            updatedAt: row.updatedAt ? new Date(row.updatedAt).toISOString() : null
+        };
+    }
+    
     return null;
 }
 
 export async function deleteApplication(userId, appId) {
-    const r = getRedis();
-    const apps = await getApplications(userId);
-    const filtered = apps.filter(a => a.id !== appId);
-    await r.set(`applications:${userId}`, JSON.stringify(filtered));
+    const db = getDb();
+    const query = `DELETE FROM applications WHERE user_id = $1 AND id = $2`;
+    await db.query(query, [userId, appId]);
 }

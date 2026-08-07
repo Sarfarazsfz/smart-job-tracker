@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { useAuth } from '@clerk/clerk-react'
 import ResumeProgressModal from './ResumeProgressModal'
 import DeleteConfirmModal from './DeleteConfirmModal'
 import { FileText, UploadCloud, X, AlertCircle, FileType, Trash2 } from 'lucide-react'
@@ -6,6 +7,7 @@ import { FileText, UploadCloud, X, AlertCircle, FileType, Trash2 } from 'lucide-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 export default function ResumeModal({ onClose, onUpload, hasExisting }) {
+    const { getToken } = useAuth()
     const [file, setFile] = useState(null)
     const [text, setText] = useState('')
     const [uploading, setUploading] = useState(false)
@@ -94,8 +96,12 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 const formData = new FormData()
                 formData.append('file', file)
 
+                const token = await getToken()
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+
                 const res = await fetch(`${API_URL}/resume/upload`, {
                     method: 'POST',
+                    headers,
                     body: formData
                 })
 
@@ -108,9 +114,13 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 stopProgressSimulation()
                 onUpload()
             } else if (mode === 'paste' && text.trim()) {
+                const token = await getToken()
                 const res = await fetch(`${API_URL}/resume/text`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                    },
                     body: JSON.stringify({ text })
                 })
 
@@ -146,8 +156,12 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
         setError('')
 
         try {
+            const token = await getToken()
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+
             const res = await fetch(`${API_URL}/resume`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers
             })
 
             if (!res.ok) {

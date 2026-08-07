@@ -3,6 +3,7 @@ import Fastify from 'fastify';
 import { config } from './src/config/index.js';
 import setupPlugins from './src/plugins/setup.js';
 import { initRedis } from './src/services/cache/cache.service.js';
+import { initDb, closeDb } from './src/services/db/db.service.js';
 
 // Module routes
 import jobRoutes from './src/modules/jobs/jobs.routes.js';
@@ -17,8 +18,13 @@ const fastify = Fastify({
 // Setup Plugins (CORS, Multipart)
 await setupPlugins(fastify);
 
-// Initialize Redis
+// Initialize Services
 await initRedis();
+await initDb();
+
+// Register Clerk for authentication
+import { clerkPlugin } from '@clerk/fastify';
+fastify.register(clerkPlugin);
 
 // Register routes
 fastify.register(jobRoutes, { prefix: '/api/jobs' });
@@ -44,6 +50,21 @@ const start = async () => {
   try {
     await fastify.listen({ port: config.port, host: '0.0.0.0' });
     console.log(`Server running on http://localhost:${config.port}`);
+    
+    const listeners = ['SIGINT', 'SIGTERM'];
+    listeners.forEach((signal) => {
+      process.on(signal, async () => {
+        try {
+          await fastify.close();
+          await closeDb();
+          fastify.log.info(`Closed application on ${signal}`);
+          process.exit(0);
+        } catch (err) {
+          fastify.log.error(err);
+          process.exit(1);
+        }
+      });
+    });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

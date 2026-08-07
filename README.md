@@ -86,6 +86,7 @@ The system connects resumes to live job listings and uses AI to calculate a rele
 |---|---|
 | Frontend | React, Vite, JavaScript, CSS |
 | Backend | Node.js, Fastify |
+| Authentication | Clerk |
 | AI | Google Gemini API |
 | Caching | Upstash Redis (in-memory fallback) |
 | Job Data | Adzuna API |
@@ -233,8 +234,8 @@ This version focuses on core functionality and system design.
 
 Current limitations:
 
-- **No auth** — single-user demo model, no accounts or login
-- **Ephemeral storage** — application data lives in Redis/memory, not a persistent database
+- **Clerk authentication added** — Supports Email and Google authentication, allowing personalized features for signed-in users.
+- **Ephemeral storage** — persistent per-user storage is still a future improvement; application data currently lives in Redis/memory.
 - **One job source** — only Adzuna; adding more sources would significantly improve coverage
 - **AI latency** — first score calculation after upload takes a few seconds, depending on Gemini response times
 
@@ -246,7 +247,7 @@ These limitations were intentionally kept to focus on core functionality.
 
 Planned enhancements for future versions:
 
-- User authentication and account system
+- Database integration for persistent storage (per-user applications and history)
 - Ability to save and manage jobs
 - Email notifications for new matching jobs
 - Integration with multiple job APIs

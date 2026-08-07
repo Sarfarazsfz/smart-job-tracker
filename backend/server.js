@@ -1,30 +1,21 @@
-import 'dotenv/config';
 import Fastify from 'fastify';
-import cors from '@fastify/cors';
-import multipart from '@fastify/multipart';
 
-import jobRoutes from './src/routes/jobs.js';
-import resumeRoutes from './src/routes/resume.js';
-import applicationRoutes from './src/routes/applications.js';
-import chatRoutes from './src/routes/chat.js';
-import { initRedis } from './src/services/redisService.js';
+import { config } from './src/config/index.js';
+import setupPlugins from './src/plugins/setup.js';
+import { initRedis } from './src/services/cache/cache.service.js';
+
+// Module routes
+import jobRoutes from './src/modules/jobs/jobs.routes.js';
+import resumeRoutes from './src/modules/resume/resume.routes.js';
+import applicationRoutes from './src/modules/applications/applications.routes.js';
+import chatRoutes from './src/modules/chat/chat.routes.js';
 
 const fastify = Fastify({
   logger: true
 });
 
-// Register plugins
-await fastify.register(cors, {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  credentials: true
-});
-
-await fastify.register(multipart, {
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
-  }
-});
+// Setup Plugins (CORS, Multipart)
+await setupPlugins(fastify);
 
 // Initialize Redis
 await initRedis();
@@ -51,9 +42,8 @@ fastify.setErrorHandler((error, request, reply) => {
 // Start server
 const start = async () => {
   try {
-    const port = process.env.PORT || 3001;
-    await fastify.listen({ port, host: '0.0.0.0' });
-    console.log(`Server running on http://localhost:${port}`);
+    await fastify.listen({ port: config.port, host: '0.0.0.0' });
+    console.log(`Server running on http://localhost:${config.port}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

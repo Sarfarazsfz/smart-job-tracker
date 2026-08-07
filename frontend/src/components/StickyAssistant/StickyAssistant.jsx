@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { Bot, UserRound, Send, X, ChevronUp } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
@@ -94,8 +95,8 @@ export default function StickyAssistant() {
                         {/* Header */}
                         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-indigo-500/10 rounded-full flex items-center justify-center text-lg">
-                                    🤖
+                                <div className="bg-indigo-500/10 p-1.5 rounded-full text-indigo-500 dark:text-indigo-400">
+                                    <Bot className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">AI Assistant</h3>
@@ -109,9 +110,7 @@ export default function StickyAssistant() {
                                 className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                                 onClick={() => setIsExpanded(false)}
                             >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="19 12 5 12"></polyline>
-                                </svg>
+                                <X className="w-4 h-4" />
                             </button>
                         </div>
 
@@ -120,8 +119,8 @@ export default function StickyAssistant() {
                             {messages.map((msg, index) => (
                                 <div key={index} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                                     {msg.role === 'assistant' && (
-                                        <div className="w-6 h-6 bg-indigo-500/10 rounded-full flex items-center justify-center flex-shrink-0 text-sm">
-                                            🤖
+                                        <div className="w-6 h-6 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <Bot className="w-3.5 h-3.5" />
                                         </div>
                                     )}
                                     <div className={`flex-1 max-w-[80%] ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
@@ -136,8 +135,8 @@ export default function StickyAssistant() {
                                         </div>
                                     </div>
                                     {msg.role === 'user' && (
-                                        <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0 text-sm">
-                                            👤
+                                        <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <UserRound className="w-3.5 h-3.5" />
                                         </div>
                                     )}
                                 </div>
@@ -146,8 +145,8 @@ export default function StickyAssistant() {
                             {/* Typing Indicator */}
                             {loading && (
                                 <div className="flex gap-2">
-                                    <div className="w-6 h-6 bg-indigo-500/10 rounded-full flex items-center justify-center flex-shrink-0 text-sm">
-                                        🤖
+                                    <div className="w-6 h-6 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <Bot className="w-3.5 h-3.5" />
                                     </div>
                                     <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-2xl">
                                         <div className="flex gap-1">
@@ -179,10 +178,7 @@ export default function StickyAssistant() {
                                     onClick={sendMessage}
                                     disabled={!input.trim() || loading}
                                 >
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <line x1="22" y1="2" x2="11" y2="13" />
-                                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                                    </svg>
+                                    <Send className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
@@ -193,8 +189,8 @@ export default function StickyAssistant() {
                         onClick={() => setIsExpanded(true)}
                         className="bg-white dark:bg-[#1D1F23] border border-gray-200 dark:border-gray-700 rounded-t-2xl shadow-lg hover:shadow-xl transition-all px-4 py-3 flex items-center gap-3 mb-0 group"
                     >
-                        <div className="w-8 h-8 bg-indigo-500/10 rounded-full flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
-                            🤖
+                        <div className="bg-indigo-500/10 p-1.5 rounded-full text-indigo-500 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                            <Bot className="w-5 h-5" />
                         </div>
                         <div className="text-left">
                             <div className="text-sm font-semibold text-slate-900 dark:text-white">Assistant</div>
@@ -203,9 +199,7 @@ export default function StickyAssistant() {
                                 Online
                             </div>
                         </div>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
-                            <polyline points="18 15 12 9 6 15"></polyline>
-                        </svg>
+                        <ChevronUp className="w-4 h-4 text-slate-400" />
                     </button>
                 )}
             </div>

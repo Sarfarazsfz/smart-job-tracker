@@ -1,3 +1,6 @@
+import { MapPin, Building2, House, Clock, ExternalLink, CheckCircle2 } from 'lucide-react'
+import { getJobAction } from '../../utils/jobActions'
+
 export default function JobCard({ job, compact, index, onApply, applied, onJobClick, hasResume }) {
     const getMatchClass = (score) => {
         if (score >= 70) return 'high'
@@ -7,10 +10,10 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
 
     const getWorkModeIcon = (mode) => {
         switch (mode?.toLowerCase()) {
-            case 'remote': return '🏠'
-            case 'hybrid': return '🔄'
-            case 'on-site': return '🏢'
-            default: return '📍'
+            case 'remote': return <House className="w-3.5 h-3.5" />
+            case 'hybrid': return <Building2 className="w-3.5 h-3.5" />
+            case 'on-site': return <Building2 className="w-3.5 h-3.5" />
+            default: return <MapPin className="w-3.5 h-3.5" />
         }
     }
 
@@ -43,25 +46,9 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
         }
     }
 
-    // Check if job is new (within 24h or 3 days)
-    const getJobFreshnessInfo = (dateStr) => {
-        const date = new Date(dateStr)
-        const now = new Date()
-        const hoursDiff = (now - date) / (1000 * 60 * 60)
-
-        if (hoursDiff < 24) {
-            return { badge: 'NEW', color: 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' }
-        }
-        if (hoursDiff < 72) { // 3 days
-            return { badge: 'RECENT', color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white' }
-        }
-        return null
-    }
-
     const maxSkills = compact ? 3 : 4
     const visibleSkills = job.skills?.slice(0, maxSkills) || []
     const remainingSkillsCount = (job.skills?.length || 0) - maxSkills
-    const freshnessInfo = getJobFreshnessInfo(job.postedDate)
 
     return (
         <article
@@ -111,27 +98,27 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
                 )}
             </div>
 
-            {/* Meta: Location, Type, Mode, Date */}
+            {/* Meta: Location, Type, Mode, Date, Source */}
             <div className="flex flex-wrap gap-2">
-                {/* New/Recent Badge */}
-                {freshnessInfo && (
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs ${freshnessInfo.color} rounded-lg font-bold shadow-sm`}>
-                        ✨ {freshnessInfo.badge}
-                    </span>
-                )}
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
-                    {getWorkModeIcon(job.workMode)} {job.location}
+                    <MapPin className="w-3.5 h-3.5" /> {job.location}
                 </span>
                 <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
                     {job.jobType}
                 </span>
-                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
-                    {job.workMode}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-800 dark:text-[#B0B3B8] rounded-lg font-medium">
+                    {getWorkModeIcon(job.workMode)} {job.workMode}
                 </span>
-                <span className="inline-flex items-center px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-700 dark:text-[#8A8D91] rounded-lg font-medium">
-                    {formatDate(job.postedDate)}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-slate-200 dark:bg-[#252729] text-slate-700 dark:text-[#8A8D91] rounded-lg font-medium">
+                    <Clock className="w-3.5 h-3.5" /> {formatDate(job.postedDate)}
                 </span>
+                {job.source === 'mock' && (
+                    <span className="inline-flex items-center px-2.5 py-1 text-xs bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg font-medium border border-amber-300 dark:border-amber-700/40">
+                        Sample
+                    </span>
+                )}
             </div>
+
 
             {/* Description - Max 2 lines */}
             {!compact && (
@@ -184,22 +171,22 @@ export default function JobCard({ job, compact, index, onApply, applied, onJobCl
                 <div className="flex gap-2 ml-auto">
                     {applied ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 rounded-lg text-sm font-medium">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <polyline points="20,6 9,17 4,12" />
-                            </svg>
+                            <CheckCircle2 className="w-4 h-4" />
                             Applied
                         </span>
                     ) : (
-                        <button
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 dark:bg-[#4E8EDC] dark:hover:bg-[#5BA3E8] text-white dark:text-[#121212] rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm hover:shadow"
-                            onClick={(e) => { e.stopPropagation(); onApply(job); }}
-                        >
-                            Apply Now
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                                <polyline points="12,5 19,12 12,19" />
-                            </svg>
-                        </button>
+                        (() => {
+                            const { label, icon: ActionIcon } = getJobAction(job)
+                            return (
+                                <button
+                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 dark:bg-[#4E8EDC] dark:hover:bg-[#5BA3E8] text-white dark:text-[#121212] rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm hover:shadow"
+                                    onClick={(e) => { e.stopPropagation(); onApply(job); }}
+                                >
+                                    {label}
+                                    <ActionIcon className="w-4 h-4" />
+                                </button>
+                            )
+                        })()
                     )}
                 </div>
             </div>

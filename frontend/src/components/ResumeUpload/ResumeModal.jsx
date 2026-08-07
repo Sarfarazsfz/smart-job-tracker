@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import ResumeProgressModal from './ResumeProgressModal'
 import DeleteConfirmModal from './DeleteConfirmModal'
+import { FileText, UploadCloud, X, AlertCircle, FileType, Trash2 } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
@@ -195,7 +196,7 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="text-5xl mb-4">📄</div>
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-indigo-500" strokeWidth={1.5} />
                     <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
                         {hasExisting ? 'Update Your Resume' : 'Upload Your Resume'}
                     </h2>
@@ -254,9 +255,7 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
 
                         {file ? (
                             <div className="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl" onClick={(e) => e.stopPropagation()}>
-                                <div className="text-4xl flex-shrink-0">
-                                    {file.type === 'application/pdf' ? '📕' : '📝'}
-                                </div>
+                                <FileType className="w-10 h-10 flex-shrink-0 text-indigo-500" strokeWidth={1.5} />
                                 <div className="flex-1 text-left">
                                     <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{file.name}</div>
                                     <div className="text-xs text-slate-500 dark:text-slate-500">{(file.size / 1024).toFixed(1)} KB</div>
@@ -273,11 +272,7 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                             </div>
                         ) : (
                             <>
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto mb-4 text-slate-400">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                    <polyline points="17,8 12,3 7,8" />
-                                    <line x1="12" y1="3" x2="12" y2="15" />
-                                </svg>
+                                <UploadCloud className="w-12 h-12 mx-auto mb-4 text-slate-400" strokeWidth={1.5} />
                                 <p className="text-slate-700 dark:text-slate-300 mb-1">
                                     <strong className="font-semibold">Click to upload</strong> or drag and drop
                                 </p>
@@ -304,11 +299,7 @@ Include your skills, experience, education, and any other relevant information."
                 {/* Error Message */}
                 {error && (
                     <div className="mt-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-sm text-red-600 dark:text-red-400">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="12" y1="8" x2="12" y2="12" />
-                            <line x1="12" y1="16" x2="12.01" y2="16" />
-                        </svg>
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
                         {error}
                     </div>
                 )}
@@ -352,13 +343,7 @@ Include your skills, experience, education, and any other relevant information."
                                 </>
                             ) : (
                                 <>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M3 6h18" />
-                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                        <line x1="10" y1="11" x2="10" y2="17" />
-                                        <line x1="14" y1="11" x2="14" y2="17" />
-                                    </svg>
+                                    <Trash2 className="w-4 h-4" />
                                     Delete Resume
                                 </>
                             )}

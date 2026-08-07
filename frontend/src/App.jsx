@@ -16,7 +16,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 const JOBS_PER_PAGE = 12
 
 function App() {
-  const { getToken } = useAuth()
+  const { getToken, isLoaded, isSignedIn } = useAuth()
   const [activeTab, setActiveTab] = useState('jobs')
   const [showResumeModal, setShowResumeModal] = useState(false)
   const [showAISidebar, setShowAISidebar] = useState(false)
@@ -45,8 +45,24 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
-    checkResume()
+    if (isLoaded) {
+      if (isSignedIn) {
+        checkResume()
+        fetchApplications()
+      } else {
+        setHasResume(false)
+        setApplications([])
+      }
+    }
+  }, [isLoaded, isSignedIn])
 
+  useEffect(() => {
+    if (isLoaded) {
+      fetchJobs()
+    }
+  }, [isLoaded])
+
+  useEffect(() => {
     // Check dark mode
     const checkDarkMode = () => {
       setIsDarkMode(document.documentElement.classList.contains('dark'))
@@ -284,12 +300,7 @@ function App() {
 
   const totalPages = Math.max(1, Math.ceil(filteredAndSortedJobs.length / JOBS_PER_PAGE))
 
-  useEffect(() => {
-    // Fetch jobs + applications once on mount
-    fetchJobs()
-    fetchApplications()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // run once on mount
+
 
   useEffect(() => {
     if (activeTab === 'applications') {
@@ -309,6 +320,7 @@ function App() {
   }, [pendingApplication])
 
   const checkResume = async () => {
+    if (!isLoaded || !isSignedIn) return;
     try {
       console.log('[Resume Check] Fetching resume status from backend...')
       const token = await getToken()
@@ -407,6 +419,7 @@ function App() {
   }
 
   const fetchApplications = async () => {
+    if (!isLoaded || !isSignedIn) return;
     try {
       const token = await getToken()
       if (!token) return // Don't fetch applications if not signed in

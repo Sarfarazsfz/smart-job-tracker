@@ -103,7 +103,25 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 formData.append('file', file)
 
                 const token = await getToken()
-                const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+                
+                console.log('[AUTH CLIENT DEBUG] isLoaded:', isLoaded)
+                console.log('[AUTH CLIENT DEBUG] isSignedIn:', isSignedIn)
+                console.log('[AUTH CLIENT DEBUG] token present:', !!token)
+                console.log('[AUTH CLIENT DEBUG] token length:', token?.length || 0)
+                
+                if (!token) {
+                    console.error('[AUTH CLIENT DEBUG] Clerk returned no token')
+                    setError('Authentication token unavailable. Please sign in again.')
+                    setUploading(false)
+                    setShowProgress(false)
+                    return
+                }
+
+                const headers = {
+                    'Authorization': `Bearer ${token}`
+                }
+                
+                console.log('[AUTH CLIENT DEBUG] authorization header present:', !!headers.Authorization)
 
                 const res = await fetch(`${API_URL}/resume/upload`, {
                     method: 'POST',
@@ -121,11 +139,17 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
                 onUpload()
             } else if (mode === 'paste' && text.trim()) {
                 const token = await getToken()
+                if (!token) {
+                    setError('Authentication token unavailable. Please sign in again.')
+                    setUploading(false)
+                    setShowProgress(false)
+                    return
+                }
                 const res = await fetch(`${API_URL}/resume/text`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ text })
                 })
@@ -167,7 +191,13 @@ export default function ResumeModal({ onClose, onUpload, hasExisting }) {
 
         try {
             const token = await getToken()
-            const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+            if (!token) {
+                setError('Authentication token unavailable. Please sign in again.')
+                setDeleting(false)
+                return
+            }
+            
+            const headers = { 'Authorization': `Bearer ${token}` }
 
             const res = await fetch(`${API_URL}/resume`, {
                 method: 'DELETE',

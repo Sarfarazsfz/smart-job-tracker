@@ -27,10 +27,9 @@ Thumbs.db
 *.swo
 *~
 
-# Lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# Package lock files are intentionally tracked
+# package-lock.json is required for reproducible npm ci builds.
+# Do NOT ignore package-lock.json.
 
 # Artifacts (local development)
 .gemini/

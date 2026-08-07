@@ -9,13 +9,14 @@ import StickyAssistant from './components/StickyAssistant/StickyAssistant'
 import ResumeModal from './components/ResumeUpload/ResumeModal'
 import ApplicationPopup from './components/SmartPopup/ApplicationPopup'
 import Footer from './components/Footer/Footer'
-import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, SignInButton, useAuth } from '@clerk/clerk-react'
 import { getJobAction } from './utils/jobActions'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 const JOBS_PER_PAGE = 12
 
 function App() {
+  const { getToken } = useAuth()
   const [activeTab, setActiveTab] = useState('jobs')
   const [showResumeModal, setShowResumeModal] = useState(false)
   const [showAISidebar, setShowAISidebar] = useState(false)
@@ -310,7 +311,9 @@ function App() {
   const checkResume = async () => {
     try {
       console.log('[Resume Check] Fetching resume status from backend...')
-      const res = await fetch(`${API_URL}/resume`)
+      const token = await getToken()
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+      const res = await fetch(`${API_URL}/resume`, { headers })
 
       if (!res.ok) {
         console.error('[Resume Check] Backend returned error:', res.status)
@@ -369,7 +372,9 @@ function App() {
         localStorage.removeItem(CACHE_TIMESTAMP_KEY)
         // Clear backend cache so providers are re-queried (not stale Redis)
         try {
-          await fetch(`${API_URL}/jobs/clear-cache`, { method: 'POST' })
+          const token = await getToken()
+          const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+          await fetch(`${API_URL}/jobs/clear-cache`, { method: 'POST', headers })
           console.log('🗑️ Backend job cache cleared')
         } catch (e) {
           console.warn('Could not clear backend cache:', e.message)
@@ -378,7 +383,9 @@ function App() {
 
       // Fetch fresh jobs from API
       console.log('🔄 Fetching fresh jobs from API')
-      const res = await fetch(`${API_URL}/jobs`)
+      const token = await getToken()
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+      const res = await fetch(`${API_URL}/jobs`, { headers })
       const data = await res.json()
       const jobs = data.jobs || []
 
@@ -401,7 +408,10 @@ function App() {
 
   const fetchApplications = async () => {
     try {
-      const res = await fetch(`${API_URL}/applications`)
+      const token = await getToken()
+      if (!token) return // Don't fetch applications if not signed in
+      const headers = { 'Authorization': `Bearer ${token}` }
+      const res = await fetch(`${API_URL}/applications`, { headers })
       const data = await res.json()
       setApplications(data.applications || [])
     } catch (error) {
@@ -427,9 +437,13 @@ function App() {
   const handleApplicationConfirm = async (confirmed, type) => {
     if (confirmed && pendingApplication) {
       try {
+        const token = await getToken()
         await fetch(`${API_URL}/applications`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
           body: JSON.stringify({
             jobId: pendingApplication.id,
             jobTitle: pendingApplication.title,
@@ -460,9 +474,13 @@ function App() {
 
   const updateApplicationStatus = async (appId, newStatus) => {
     try {
+      const token = await getToken()
       await fetch(`${API_URL}/applications/${appId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ status: newStatus })
       })
       fetchApplications()

@@ -7,6 +7,12 @@ export const config = {
     url: process.env.UPSTASH_REDIS_REST_URL,
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
   },
+  db: {
+    url: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') && !process.env.DATABASE_URL.includes('127.0.0.1')
+        ? { rejectUnauthorized: false }
+        : false
+  },
   ai: {
     geminiKey: process.env.GEMINI_API_KEY,
     openAiKey: process.env.OPENAI_API_KEY,
@@ -15,5 +21,8 @@ export const config = {
     adzunaAppId: process.env.ADZUNA_APP_ID,
     adzunaAppKey: process.env.ADZUNA_APP_KEY,
     rapidApiKey: process.env.RAPIDAPI_KEY,
+  },
+  auth: {
+    clerkSecretKey: process.env.CLERK_SECRET_KEY,
   }
 };

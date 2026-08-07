@@ -1,19 +1,35 @@
+import { getAuth } from '@clerk/fastify';
+
 /**
- * Middleware to extract and verify the user identity.
- * Currently uses a simple query parameter for backward compatibility,
- * but is structured to easily integrate Clerk SDK later.
+ * Middleware to ensure the request is fully authenticated via Clerk.
+ * Rejects with 401 if not authenticated.
  */
 export async function requireAuth(request, reply) {
-    // TODO: Integrate Clerk SDK here
-    // Example future implementation:
-    // const { userId } = getAuth(request);
-    // if (!userId) {
-    //     return reply.status(401).send({ error: 'Unauthorized' });
-    // }
+    if (process.env.NODE_ENV === 'test' && request.headers['x-mock-userid']) {
+        request.userContext = request.headers['x-mock-userid'];
+        return;
+    }
+
+    const { isAuthenticated, userId } = getAuth(request);
     
-    // For now, fallback to development context from query params
-    const userContext = request.query.userId || 'default';
+    if (!isAuthenticated || !userId) {
+        return reply.status(401).send({ error: 'Unauthorized' });
+    }
     
     // Attach to request so controllers don't need to read query params directly
-    request.userContext = userContext;
+    request.userContext = userId;
+}
+
+/**
+ * Middleware that extracts user context if present, but allows unauthenticated requests.
+ * Used for public routes like the job feed.
+ */
+export async function optionalAuth(request, reply) {
+    if (process.env.NODE_ENV === 'test' && request.headers['x-mock-userid']) {
+        request.userContext = request.headers['x-mock-userid'];
+        return;
+    }
+
+    const { userId } = getAuth(request);
+    request.userContext = userId || null;
 }

@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { ClipboardList, Send, MessageSquare, Trophy, CircleX, FolderOpen, Calendar, Clock, ExternalLink, RefreshCw } from 'lucide-react'
 
 const STATUS_OPTIONS = [
-    { value: 'all', label: 'All Applications', icon: '📋' },
-    { value: 'applied', label: 'Applied', icon: '📤' },
-    { value: 'interview', label: 'Interview', icon: '💬' },
-    { value: 'offer', label: 'Offer', icon: '🎉' },
-    { value: 'rejected', label: 'Rejected', icon: '❌' }
+    { value: 'all', label: 'All Applications', icon: <ClipboardList className="w-6 h-6 mb-2" /> },
+    { value: 'applied', label: 'Applied', icon: <Send className="w-6 h-6 mb-2" /> },
+    { value: 'interview', label: 'Interview', icon: <MessageSquare className="w-6 h-6 mb-2" /> },
+    { value: 'offer', label: 'Offer', icon: <Trophy className="w-6 h-6 mb-2" /> },
+    { value: 'rejected', label: 'Rejected', icon: <CircleX className="w-6 h-6 mb-2" /> }
 ]
 
 const STATUS_STYLES = {
@@ -58,7 +59,7 @@ export default function ApplicationTracker({ applications, onStatusChange, onRef
     if (applications.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-24 px-4">
-                <div className="text-6xl mb-6 opacity-50">📭</div>
+                <FolderOpen className="w-16 h-16 mb-6 text-slate-300 dark:text-slate-600" />
                 <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-3">No Applications Yet</h2>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 text-center max-w-md leading-relaxed">
                     Start applying to jobs to track your applications here
@@ -83,9 +84,7 @@ export default function ApplicationTracker({ applications, onStatusChange, onRef
                         className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors w-fit"
                         onClick={onRefresh}
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-                        </svg>
+                        <RefreshCw className="w-4 h-4" />
                         Refresh
                     </button>
                 </div>
@@ -104,7 +103,7 @@ export default function ApplicationTracker({ applications, onStatusChange, onRef
                             `}
                             onClick={() => setSelectedStatus(opt.value)}
                         >
-                            <div className="text-2xl mb-2">{opt.icon}</div>
+                            {opt.icon}
                             <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
                                 {opt.value === 'all' ? stats.total : stats[opt.value]}
                             </div>
@@ -145,12 +144,12 @@ export default function ApplicationTracker({ applications, onStatusChange, onRef
                             </div>
 
                             {/* Meta */}
-                            <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-500">
-                                <span className="inline-flex items-center gap-1">
-                                    📅 Applied: {formatDate(app.appliedAt)}
+                            <div className="flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-500">
+                                <span className="inline-flex items-center gap-1.5">
+                                    <Calendar className="w-3.5 h-3.5" /> Applied: {formatDate(app.appliedAt)}
                                 </span>
-                                <span className="inline-flex items-center gap-1">
-                                    🔄 Updated: {formatDate(app.updatedAt)}
+                                <span className="inline-flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5" /> Updated: {formatDate(app.updatedAt)}
                                 </span>
                             </div>
 
@@ -170,9 +169,9 @@ export default function ApplicationTracker({ applications, onStatusChange, onRef
                                         href={app.applyUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
                                     >
-                                        View Job →
+                                        View Job <ExternalLink className="w-3 h-3" />
                                     </a>
                                 )}
                             </div>

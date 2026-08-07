@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import JobCard from './JobCard'
 import JobDetailModal from '../JobDetail/JobDetailModal'
-import HeroTyping from '../HeroTyping/HeroTyping'
 import Pagination from '../Pagination/Pagination'
+import { Upload, SearchX } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
@@ -100,7 +100,32 @@ export default function JobFeed({
             <div className="space-y-12" ref={jobFeedRef}>
                 {/* Hero */}
                 <div className="mb-8 md:mb-12">
-                    <HeroTyping />
+                    {hasResume ? (
+                        <div className="bg-white dark:bg-[#1D1F23] border border-slate-200 dark:border-[rgba(255,255,255,0.06)] rounded-2xl p-6 md:p-8 shadow-sm">
+                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-[#E4E6EB] mb-2">
+                                Your personalized job matches
+                            </h1>
+                            <p className="text-slate-600 dark:text-[#8A8D91]">
+                                Jobs ranked using your resume, skills, and experience.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="bg-white dark:bg-[#1D1F23] border border-slate-200 dark:border-[rgba(255,255,255,0.06)] rounded-2xl p-6 md:p-8 shadow-sm">
+                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-[#E4E6EB] mb-2">
+                                Find jobs that match your experience
+                            </h1>
+                            <p className="text-slate-600 dark:text-[#8A8D91] mb-6">
+                                Upload your resume to get AI-powered match scores and prioritize the most relevant opportunities.
+                            </p>
+                            <button
+                                onClick={() => document.querySelector('[data-resume-button]')?.click()}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                            >
+                                <Upload className="w-4 h-4" />
+                                Upload Resume
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Best Matches (correctly hidden on filters / page > 1) */}
@@ -174,10 +199,10 @@ export default function JobFeed({
                     </div>
 
                     {jobs.length === 0 ? (
-                        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-3xl p-16 md:p-20 text-center">
-                            <div className="text-3xl mb-4">🔍</div>
-                            <h3 className="text-lg font-semibold">No matching jobs</h3>
-                            <p className="text-sm opacity-70">
+                        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-3xl p-16 md:p-20 text-center flex flex-col items-center">
+                            <SearchX className="w-12 h-12 text-slate-400 mb-4" />
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-[#E4E6EB]">No matching jobs</h3>
+                            <p className="text-sm text-slate-500 mt-1">
                                 Try adjusting your filters.
                             </p>
                         </div>

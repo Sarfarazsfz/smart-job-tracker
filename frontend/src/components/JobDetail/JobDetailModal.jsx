@@ -1,3 +1,5 @@
+import { getJobAction } from '../../utils/jobActions'
+
 export default function JobDetailModal({ job, onClose, onApply, isApplied }) {
     if (!job) return null
 
@@ -215,7 +217,7 @@ export default function JobDetailModal({ job, onClose, onApply, isApplied }) {
                     {job.applyUrl && (
                         <div>
                             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3 uppercase tracking-wide">
-                                Apply Now
+                                Link
                             </h3>
                             <a
                                 href={job.applyUrl}
@@ -238,15 +240,21 @@ export default function JobDetailModal({ job, onClose, onApply, isApplied }) {
                                 Applied
                             </div>
                         ) : (
-                            <button
-                                className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow"
-                                onClick={() => {
-                                    onApply(job)
-                                    onClose()
-                                }}
-                            >
-                                Apply Now
-                            </button>
+                            (() => {
+                                const { label, icon: ActionIcon } = getJobAction(job)
+                                return (
+                                    <button
+                                        className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow flex items-center justify-center gap-2"
+                                        onClick={() => {
+                                            onApply(job)
+                                            onClose()
+                                        }}
+                                    >
+                                        {label}
+                                        <ActionIcon className="w-4 h-4" />
+                                    </button>
+                                )
+                            })()
                         )}
                         <button
                             className="sm:flex-none px-4 md:px-6 py-2.5 md:py-3 bg-slate-100 dark:bg-[#1D1F23] text-slate-700 dark:text-[#E4E6EB] hover:bg-slate-200 dark:hover:bg-[#252729] rounded-xl font-medium text-sm transition-colors border border-slate-300 dark:border-[rgba(255,255,255,0.06)]"

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { Bot, UserRound, Send, X } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
@@ -106,7 +107,9 @@ export default function AISidebar({ onClose, onJobSelect }) {
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-200 dark:border-[rgba(255,255,255,0.06)]">
                     <div className="flex items-center gap-3">
-                        <div className="text-3xl">🤖</div>
+                        <div className="bg-indigo-500/10 p-2 rounded-xl text-indigo-500 dark:text-indigo-400">
+                            <Bot className="w-6 h-6" />
+                        </div>
                         <div>
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-[#E4E6EB]">AI Assistant</h3>
                             <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-500">
@@ -119,10 +122,7 @@ export default function AISidebar({ onClose, onJobSelect }) {
                         className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                         onClick={onClose}
                     >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
@@ -131,8 +131,8 @@ export default function AISidebar({ onClose, onJobSelect }) {
                     {messages.map((msg, index) => (
                         <div key={index} className={`flex gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                             {msg.role === 'assistant' && (
-                                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-500/10 rounded-full flex items-center justify-center flex-shrink-0 text-base sm:text-lg">
-                                    🤖
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-full flex items-center justify-center flex-shrink-0 text-base sm:text-lg">
+                                    <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </div>
                             )}
                             <div className={`flex-1 max-w-[85%] sm:max-w-[80%] ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
@@ -190,8 +190,8 @@ export default function AISidebar({ onClose, onJobSelect }) {
                                 </div>
                             </div>
                             {msg.role === 'user' && (
-                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0 text-lg">
-                                    👤
+                                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center flex-shrink-0 text-lg">
+                                    <UserRound className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </div>
                             )}
                         </div>
@@ -200,8 +200,8 @@ export default function AISidebar({ onClose, onJobSelect }) {
                     {/* Typing Indicator */}
                     {loading && (
                         <div className="flex gap-2 sm:gap-3">
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-500/10 rounded-full flex items-center justify-center flex-shrink-0 text-base sm:text-lg">
-                                🤖
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-full flex items-center justify-center flex-shrink-0 text-base sm:text-lg">
+                                <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="bg-slate-100 dark:bg-slate-800/50 p-3 rounded-2xl">
                                 <div className="flex gap-1">
@@ -251,10 +251,7 @@ export default function AISidebar({ onClose, onJobSelect }) {
                             onClick={() => sendMessage()}
                             disabled={!input.trim() || loading}
                         >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="22" y1="2" x2="11" y2="13" />
-                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                            </svg>
+                            <Send className="w-5 h-5" />
                         </button>
                     </div>
                 </div>

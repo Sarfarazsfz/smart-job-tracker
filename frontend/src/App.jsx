@@ -9,6 +9,8 @@ import StickyAssistant from './components/StickyAssistant/StickyAssistant'
 import ResumeModal from './components/ResumeUpload/ResumeModal'
 import ApplicationPopup from './components/SmartPopup/ApplicationPopup'
 import Footer from './components/Footer/Footer'
+import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
+import { getJobAction } from './utils/jobActions'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 const JOBS_PER_PAGE = 12
@@ -19,6 +21,7 @@ function App() {
   const [showAISidebar, setShowAISidebar] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [hasResume, setHasResume] = useState(false)
+  const [showDemoMessage, setShowDemoMessage] = useState(false)
   const [pendingApplication, setPendingApplication] = useState(null)
   const [filters, setFilters] = useState({
     query: '',
@@ -360,7 +363,20 @@ function App() {
         }
       }
 
-      // Fetch from API if cache miss or force refresh
+      if (forceRefresh) {
+        // Clear frontend localStorage cache
+        localStorage.removeItem(CACHE_KEY)
+        localStorage.removeItem(CACHE_TIMESTAMP_KEY)
+        // Clear backend cache so providers are re-queried (not stale Redis)
+        try {
+          await fetch(`${API_URL}/jobs/clear-cache`, { method: 'POST' })
+          console.log('🗑️ Backend job cache cleared')
+        } catch (e) {
+          console.warn('Could not clear backend cache:', e.message)
+        }
+      }
+
+      // Fetch fresh jobs from API
       console.log('🔄 Fetching fresh jobs from API')
       const res = await fetch(`${API_URL}/jobs`)
       const data = await res.json()
@@ -399,8 +415,13 @@ function App() {
       clickedAt: new Date().toISOString()
     })
 
-    // Open job URL in new tab
-    window.open(job.applyUrl, '_blank')
+    const action = getJobAction(job)
+    if (action.canOpen && job.applyUrl) {
+      window.open(job.applyUrl, '_blank')
+    } else if (job.externalUrlType === 'demo' || !action.canOpen) {
+      setShowDemoMessage(true)
+      setTimeout(() => setShowDemoMessage(false), 4000)
+    }
   }
 
   const handleApplicationConfirm = async (confirmed, type) => {
@@ -543,11 +564,29 @@ function App() {
           )}
 
           {activeTab === 'applications' && (
-            <ApplicationTracker
-              applications={applications}
-              onStatusChange={updateApplicationStatus}
-              onRefresh={fetchApplications}
-            />
+            <>
+              <SignedIn>
+                <ApplicationTracker
+                  applications={applications}
+                  onStatusChange={updateApplicationStatus}
+                  onRefresh={fetchApplications}
+                />
+              </SignedIn>
+              <SignedOut>
+                <div className="flex flex-col items-center justify-center py-24 px-4 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 max-w-2xl mx-auto mt-8 shadow-sm">
+                  <div className="text-6xl mb-6 opacity-50">🔒</div>
+                  <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-3">Sign in to track applications</h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-8 text-center max-w-md leading-relaxed">
+                    Create an account or sign in to track your job applications and manage your job search process.
+                  </p>
+                  <SignInButton mode="modal">
+                    <button className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm hover:shadow-md">
+                      Sign In to Continue
+                    </button>
+                  </SignInButton>
+                </div>
+              </SignedOut>
+            </>
           )}
         </main>
 
@@ -572,6 +611,20 @@ function App() {
             job={pendingApplication}
             onConfirm={handleApplicationConfirm}
           />
+        )}
+
+        {/* Demo Message Toast */}
+        {showDemoMessage && (
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60] animate-fade-in">
+            <div className="bg-slate-800 dark:bg-slate-700 text-white px-6 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span className="text-sm font-medium">Demo job — external application isn't available for this sample listing.</span>
+            </div>
+          </div>
         )}
 
         {/* Sticky Assistant - Desktop Only */}

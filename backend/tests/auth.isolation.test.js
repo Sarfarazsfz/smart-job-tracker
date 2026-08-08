@@ -102,14 +102,19 @@ test('Authentication and Data Isolation', async (t) => {
         assert.ok(Array.isArray(body.jobs));
     });
 
-    await t.test('6. Chat rejects unauthenticated requests', async () => {
-        const response = await app.inject({
-            method: 'POST',
-            url: '/api/chat',
-            payload: { message: 'hello' }
-        });
-        assert.strictEqual(response.statusCode, 401);
+    await t.test('6. Chat is publicly accessible', async () => {
+    const response = await app.inject({
+        method: 'POST',
+        url: '/api/chat',
+        payload: { message: 'hello' }
     });
+
+    assert.strictEqual(response.statusCode, 200);
+
+    const body = JSON.parse(response.payload);
+    assert.strictEqual(body.success, true);
+    assert.ok(body.response);
+});
 
     await t.test('7. Resume upload isolated correctly', async () => {
         // We test via text resume for simplicity to avoid multipart mocking

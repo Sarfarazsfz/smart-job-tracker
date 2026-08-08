@@ -3,7 +3,7 @@ import { getResume } from '../resume/resume.repository.js';
 export async function processUserMessage(userId, message, getJobsCallback) {
     // Get current jobs and resume for context
     const jobs = await getJobsCallback();
-    const resume = await getResume(userId);
+    const resume = userId ? await getResume(userId) : null;
     const resumeText = resume?.text || '';
 
     // Process the chat message (which uses AI)

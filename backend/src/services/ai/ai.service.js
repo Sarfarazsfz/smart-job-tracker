@@ -13,9 +13,9 @@ export function initAI() {
     if (config.ai.geminiKey) {
         try {
             genAI = new GoogleGenerativeAI(config.ai.geminiKey);
-            model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+            model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
             aiProvider = 'gemini';
-            console.log('Google Gemini AI initialized (gemini-2.5-flash)');
+            console.log('Google Gemini AI initialized (gemini-3.6-flash)');
 
             // Also initialize OpenAI as backup if available
             if (config.ai.openAiKey) {

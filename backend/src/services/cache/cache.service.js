@@ -10,7 +10,7 @@ const memoryStore = {
     set: async (key, value, options) => {
         memoryStore.data.set(key, value);
         if (options?.ex) {
-            setTimeout(() => memoryStore.data.delete(key), options.ex * 1000);
+            setTimeout(() => memoryStore.data.delete(key), options.ex * 1000).unref();
         }
         return 'OK';
     },
